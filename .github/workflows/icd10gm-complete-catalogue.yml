@@ -23,13 +23,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Download official BfArM ICD-10-GM package
-        run: |
-          git clone --depth 1 https://github.com/gematik/zts-api-client-examples.git .zts
-          chmod +x .zts/curl/download.sh
-          ./.zts/curl/download.sh -c true -i bfarm.terminologien.icd10gm -l true -o .bfarm-packages
-      - name: Build exact terminal catalogue from official BfArM CodeSystem
-        run: node scripts/build-icd10gm.mjs .bfarm-packages
+      - name: Build complete terminal catalogue from official BfArM ValueSet
+        run: node scripts/build-icd10gm.mjs
       - name: Verify generated catalogue syntax and exact count
         run: |
           node --check krankheitslexikon-all-2026.js
