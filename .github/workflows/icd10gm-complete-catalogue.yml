@@ -4,7 +4,12 @@ on:
     branches: [main]
     paths:
       - 'scripts/build-icd10gm.mjs'
+      - 'tests/icd10gm-complete-browser.js'
       - '.github/workflows/icd10gm-complete-catalogue.yml'
+      - 'krankheitslexikon-plus.js'
+      - 'krankheitslexikon-plus.css'
+      - 'krankheitslexikon-plus-fixes.css'
+      - 'index.html'
   workflow_dispatch:
 permissions:
   contents: write
@@ -18,9 +23,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Build complete terminal catalogue from BfArM FHIR
-        run: node scripts/build-icd10gm.mjs
-      - name: Verify generated catalogue syntax
+      - name: Download official BfArM ICD-10-GM package
+        run: |
+          git clone --depth 1 https://github.com/gematik/zts-api-client-examples.git .zts
+          chmod +x .zts/curl/download.sh
+          sed -i 's/ACCEPTED_DOWNLOAD_CONDITIONS=false/ACCEPTED_DOWNLOAD_CONDITIONS=true/' .zts/curl/download.sh
+          ./.zts/curl/download.sh -c true -i bfarm.terminologien.icd10gm -l true -o .bfarm-packages
+      - name: Build complete terminal catalogue from official BfArM package
+        run: node scripts/build-icd10gm.mjs .bfarm-packages
+      - name: Verify generated catalogue syntax and count
         run: node --check krankheitslexikon-all-2026.js
       - name: Install Playwright
         run: npm install --no-save playwright@1.55.0
