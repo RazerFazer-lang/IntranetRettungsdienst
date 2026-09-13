@@ -65,21 +65,12 @@
   overflow:hidden;
   transition:background-color .14s ease,border-color .14s ease,color .14s ease;
 }
-.nav button:hover{
-  background:var(--nav-hover);
-  border-color:#243957;
-  color:#f4f7fb;
-}
-.nav button.active{
-  background:var(--nav-active);
-  border-color:#233a56;
-  color:#fff;
-  box-shadow:inset 3px 0 0 var(--nav-accent),0 4px 14px rgba(0,0,0,.12);
-}
+.nav button:hover{background:var(--nav-hover);border-color:#243957;color:#f4f7fb}
+.nav button.active{background:var(--nav-active);border-color:#233a56;color:#fff;box-shadow:inset 3px 0 0 var(--nav-accent),0 4px 14px rgba(0,0,0,.12)}
 .nav button.active:hover{background:#1b2d47}
 .nav button:focus-visible{outline:2px solid var(--nav-accent);outline-offset:1px}
 
-.nav button .nav-icon{
+.nav button > span:first-child{
   width:var(--nav-icon-col);
   height:30px;
   min-width:var(--nav-icon-col);
@@ -94,7 +85,8 @@
   font-weight:500;
   overflow:visible;
 }
-.nav button.active .nav-icon{color:#dcecff}
+.nav button .nav-icon{color:var(--nav-icon)}
+.nav button.active > span:first-child{color:#dcecff}
 .nav button .nav-label{
   min-width:0;
   width:100%;
@@ -104,18 +96,13 @@
   white-space:nowrap;
   line-height:1;
 }
-.nav button .nav-label.long{font-size:14.5px}
+
+.sidebar-card{margin-top:12px;padding:10px 11px;border-radius:11px}
+.sidebar-footer{left:14px;right:14px;bottom:12px;font-size:9px}
 
 .nav::-webkit-scrollbar{width:7px}
 .nav::-webkit-scrollbar-thumb{background:#2d405c;border-radius:999px}
 .nav::-webkit-scrollbar-track{background:transparent}
-
-.sidebar-card{
-  margin-top:12px;
-  padding:10px 11px;
-  border-radius:11px;
-}
-.sidebar-footer{left:14px;right:14px;bottom:12px;font-size:9px}
 
 @media(max-width:1100px){
   :root{--nav-width:286px}
@@ -130,7 +117,4 @@
   .nav button,.nav button.nav-item{flex-basis:46px;height:46px;min-height:46px}
   .sidebar-footer{position:static;margin-top:12px}
 }
-
-@media(prefers-reduced-motion:reduce){
-  .nav button{transition:none}
-}
+@media(prefers-reduced-motion:reduce){.nav button{transition:none}}
