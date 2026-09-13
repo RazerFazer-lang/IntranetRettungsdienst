@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="enhancements.css">
   <link rel="stylesheet" href="search-preview.css">
   <link rel="stylesheet" href="search-preview-v2.css">
+  <link rel="stylesheet" href="search-layer-v6.css">
 </head>
 <body>
   <div class="app-shell">
@@ -31,7 +32,7 @@
         <button class="nav-item" data-view="wissen"><span>▤</span> Wissen</button>
       </nav>
       <div class="sidebar-card"><div class="status-dot"></div><div><strong>Offline bereit</strong><span>Nach dem ersten Laden lokal nutzbar</span></div></div>
-      <div class="sidebar-footer">Version 1.3 · Ausbildungs-/RP-Modus</div>
+      <div class="sidebar-footer">Version 1.4 · Ausbildungs-/RP-Modus</div>
     </aside>
     <main class="main">
       <header class="topbar">
@@ -53,10 +54,9 @@
   <script src="data.js"></script>
   <script src="meds.js"></script>
   <script src="app.js"></script>
-  <script src="search-preview.js"></script>
   <script src="search-preview-v2.js"></script>
   <script>
-    if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./sw-v5.js').catch(()=>{}));
+    if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./cache-v6.js').catch(()=>{}));
     let deferredInstallPrompt;
     const installBtn=document.getElementById('installBtn');
     window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;installBtn.hidden=false;installBtn.onclick=async()=>{deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;installBtn.hidden=true;};});
