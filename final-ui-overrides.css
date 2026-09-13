@@ -1,0 +1,13 @@
+/* Final visual and layering corrections. Loaded last on purpose. */
+.topbar{position:sticky!important;top:0!important;z-index:20!important}
+.hero{position:relative!important;z-index:1!important;overflow:visible!important}
+.search{position:relative!important;z-index:1!important}
+.live-search-preview-v2{z-index:2!important}
+.live-search-preview{z-index:2!important}
+.einsatzlagen-panel{position:relative;isolation:isolate}
+.einsatzlagen-grid{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.einsatzlage-card{min-height:100%;display:flex;flex-direction:column}
+.einsatzlage-body{flex:1;display:flex;flex-direction:column}
+.einsatzlage-body p{margin-top:auto;padding-top:4px}
+@media(max-width:800px){.einsatzlagen-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.einsatzlagen-grid{grid-template-columns:1fr}}
