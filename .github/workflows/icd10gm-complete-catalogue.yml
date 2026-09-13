@@ -18,16 +18,20 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Download official BfArM ICD-10-GM package
-        run: npm --registry https://terminologien.bfarm.de/packages install bfarm.terminologien.icd10gm --prefix ./.icd-package
-      - name: Build complete terminal catalogue
+      - name: Build complete terminal catalogue from BfArM FHIR
         run: node scripts/build-icd10gm.mjs
+      - name: Verify generated catalogue syntax
+        run: node --check krankheitslexikon-all-2026.js
       - name: Install Playwright
         run: npm install --no-save playwright@1.55.0
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
-      - name: Run complete ICD-10-GM browser regression
-        run: node tests/icd10gm-complete-browser.js
+      - name: Install browsers
+        run: npx playwright install --with-deps chromium firefox webkit
+      - name: Run complete ICD-10-GM browser matrix
+        run: |
+          for browser in chromium firefox webkit; do
+            echo "=== Testing $browser ==="
+            BROWSER=$browser node tests/icd10gm-complete-browser.js
+          done
       - name: Bump service-worker cache and stage generated catalogue
         run: |
           node - <<'NODE'
