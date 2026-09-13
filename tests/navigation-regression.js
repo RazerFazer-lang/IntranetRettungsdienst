@@ -17,17 +17,18 @@ async function assertSidebarStyle(page,label){
   const buttons=page.locator('.nav-item');
   const count=await buttons.count();
   if(count<15)throw new Error(`${label}: sidebar has too few navigation buttons (${count})`);
-  const values=await buttons.evaluateAll(els=>els.map(el=>{const s=getComputedStyle(el);return{height:Math.round(parseFloat(s.height)),minHeight:Math.round(parseFloat(s.minHeight)),padding:s.padding,gap:s.gap,borderRadius:s.borderRadius,fontSize:s.fontSize,lineHeight:s.lineHeight,display:s.display,alignItems:s.alignItems,boxSizing:s.boxSizing,width:Math.round(el.getBoundingClientRect().width)}}));
+  const values=await buttons.evaluateAll(els=>els.map(el=>{const s=getComputedStyle(el);const first=el.querySelector(':scope > span:first-child');const fs=first?getComputedStyle(first):null;return{height:Math.round(parseFloat(s.height)),minHeight:Math.round(parseFloat(s.minHeight)),padding:s.padding,gap:s.columnGap,borderRadius:s.borderRadius,fontSize:s.fontSize,lineHeight:s.lineHeight,display:s.display,alignItems:s.alignItems,boxSizing:s.boxSizing,width:Math.round(el.getBoundingClientRect().width),grid:s.gridTemplateColumns,iconWidth:first?Math.round(first.getBoundingClientRect().width):0,iconAlign:fs?.alignItems,iconJustify:fs?.justifyContent}}));
   const first=values[0];
   for(const [i,v] of values.entries()){
-    for(const key of ['height','minHeight','padding','gap','borderRadius','fontSize','lineHeight','display','alignItems','boxSizing']){
+    for(const key of ['height','minHeight','padding','gap','borderRadius','fontSize','lineHeight','display','alignItems','boxSizing','grid','iconWidth','iconAlign','iconJustify']){
       if(v[key]!==first[key])throw new Error(`${label}: inconsistent ${key} on nav item ${i}`);
     }
-    if(v.height!==52||v.minHeight!==52)throw new Error(`${label}: navigation row ${i} is not exactly 52px high`);
+    if(v.height!==46||v.minHeight!==46)throw new Error(`${label}: navigation row ${i} is not exactly 46px high`);
+    if(v.iconWidth!==28)throw new Error(`${label}: navigation icon column ${i} is not exactly 28px`);
     if(v.width<150)throw new Error(`${label}: navigation row ${i} is unexpectedly narrow`);
   }
-  const iconWidths=await page.locator('.nav-item span').evaluateAll(els=>els.map(el=>Math.round(el.getBoundingClientRect().width)));
-  if(iconWidths.some(w=>w!==20))throw new Error(`${label}: navigation icons do not use the shared 20px column`);
+  const rects=await buttons.evaluateAll(els=>els.map(el=>{const r=el.getBoundingClientRect();return{left:Math.round(r.left),right:Math.round(r.right),width:Math.round(r.width)}}));
+  if(new Set(rects.map(r=>r.left)).size!==1||new Set(rects.map(r=>r.right)).size!==1)throw new Error(`${label}: navigation rows are not perfectly aligned`);
 }
 (async()=>{
   await new Promise(r=>server.listen(port,'127.0.0.1',r));
