@@ -9,11 +9,13 @@
   gap:6px;
 }
 .nav button{
+  box-sizing:border-box;
   flex:0 0 auto;
   width:100%;
-  min-height:42px;
+  height:52px;
+  min-height:52px;
   margin:0;
-  padding:10px 12px;
+  padding:7px 12px;
   display:flex;
   align-items:center;
   gap:11px;
@@ -23,8 +25,9 @@
   color:#b8c6d8;
   text-align:left;
   font-size:15px;
-  line-height:1.25;
+  line-height:1.2;
   transition:background-color .15s ease,border-color .15s ease,color .15s ease,transform .15s ease;
+  overflow:hidden;
 }
 .nav button span{
   flex:0 0 20px;
@@ -37,17 +40,8 @@
   line-height:1;
   text-align:center;
 }
-.nav button:hover{
-  background:#152239;
-  border-color:#263956;
-  color:#f4f7fb;
-}
-.nav button.active{
-  background:#17283f;
-  border-color:#29415f;
-  color:#fff;
-  box-shadow:inset 3px 0 0 #4d8eea;
-}
+.nav button:hover{background:#152239;border-color:#263956;color:#f4f7fb}
+.nav button.active{background:#17283f;border-color:#29415f;color:#fff;box-shadow:inset 3px 0 0 #4d8eea}
 .nav button.active:hover{background:#1a2d47}
 .nav button:focus-visible{outline:2px solid #4d8eea;outline-offset:2px}
 .nav::-webkit-scrollbar{width:8px}
@@ -66,5 +60,5 @@
     padding:2px 5px 2px 0;
     gap:6px;
   }
-  .nav button{min-height:44px;font-size:15px}
+  .nav button{height:52px;min-height:52px;font-size:15px}
 }
