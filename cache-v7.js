@@ -1,4 +1,4 @@
-const CACHE='rd-intranet-v25';
+const CACHE='rd-intranet-v26';
 const SHELL=['./','./index.html','./styles.css','./enhancements.css','./search-preview-v2.css','./search-layer-v6.css','./checklists.css','./checklists-enhanced.css','./notfallbilder.css','./einsatzlagen.css','./navigation-fixes.css','./ausbildung-suite.css','./manv.css','./krankheiten.css','./app.js','./data.js','./meds.js','./checklists.js','./checklists-stable.js','./notfallbilder.js','./search-preview-v2.js','./manv.js','./einsatzlagen.js','./ausbildung-suite.js','./navigation-controller.js','./ui-fixes.js','./krankheiten.js','./manifest.webmanifest','./icon.svg'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
