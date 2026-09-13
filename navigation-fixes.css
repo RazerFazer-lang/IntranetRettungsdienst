@@ -16,16 +16,21 @@
 .app-shell{grid-template-columns:var(--nav-width) 1fr}
 .sidebar{
   width:var(--nav-width);
-  padding:22px 14px 18px;
+  padding:22px 14px 14px;
   overflow:hidden;
   background:#070d17;
   border-right:1px solid #1c2a3d;
+  display:flex;
+  flex-direction:column;
+  min-height:100vh;
 }
-.brand{padding:3px 8px 22px}
+.brand{padding:3px 8px 22px;flex:0 0 auto}
 .brand-mark{width:38px;height:38px;border-radius:12px}
 
 .nav{
-  max-height:calc(100vh - 176px);
+  flex:1 1 auto;
+  min-height:0;
+  max-height:none;
   overflow-y:auto;
   overflow-x:hidden;
   display:flex;
@@ -97,8 +102,23 @@
   line-height:1;
 }
 
-.sidebar-card{margin-top:12px;padding:10px 11px;border-radius:11px}
-.sidebar-footer{left:14px;right:14px;bottom:12px;font-size:9px}
+.sidebar-card{
+  flex:0 0 auto;
+  margin-top:12px;
+  padding:10px 11px;
+  border-radius:11px;
+}
+.sidebar-footer{
+  position:static;
+  flex:0 0 auto;
+  margin:8px 0 0;
+  padding:0 2px 2px;
+  left:auto;
+  right:auto;
+  bottom:auto;
+  font-size:9px;
+  line-height:1.3;
+}
 
 .nav::-webkit-scrollbar{width:7px}
 .nav::-webkit-scrollbar-thumb{background:#2d405c;border-radius:999px}
@@ -111,10 +131,10 @@
 }
 @media(max-width:800px){
   .app-shell{display:block}
-  .sidebar{width:300px;left:-320px;padding:20px 14px 16px}
+  .sidebar{width:300px;left:-320px;padding:20px 14px 16px;min-height:100dvh}
   .sidebar.open{left:0}
-  .nav{max-height:calc(100dvh - 136px);gap:4px}
+  .nav{max-height:none;flex:1 1 auto;gap:4px}
   .nav button,.nav button.nav-item{flex-basis:46px;height:46px;min-height:46px}
-  .sidebar-footer{position:static;margin-top:12px}
+  .sidebar-footer{position:static;margin-top:8px}
 }
 @media(prefers-reduced-motion:reduce){.nav button{transition:none}}
