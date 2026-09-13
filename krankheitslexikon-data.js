@@ -1,0 +1,1 @@
+window.RD_KRANKHEITSLEXIKON_EXTRA="+json.dumps(entries[1:], ensure_ascii=False, separators=(',',':'))+";
