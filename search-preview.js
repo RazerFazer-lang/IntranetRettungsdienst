@@ -1,6 +1,13 @@
 (() => {
+  const icons = ['♥','🫁','🧠','✚','⚠','✦'];
   const esc = (s='') => String(s).replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#039;'}[c]));
-  const ensureBox = input => {
+  function getResults(query='') {
+    if (!window.RD_DATA || !Array.isArray(RD_DATA.common)) return [];
+    const q = query.trim().toLowerCase();
+    if (!q) return RD_DATA.common.slice(0, 6);
+    return RD_DATA.common.filter(x => [x.title,x.cat,x.desc].some(v => String(v).toLowerCase().includes(q))).slice(0, 7);
+  }
+  function ensurePreview(input) {
     let box = input.parentElement?.querySelector('.live-search-preview');
     if (!box) {
       box = document.createElement('div');
@@ -9,32 +16,28 @@
       input.parentElement.appendChild(box);
     }
     return box;
-  };
-  const search = (input) => {
-    if (!window.RD_DATA || !input) return;
-    const q = input.value.trim().toLowerCase();
-    const box = ensureBox(input);
-    if (q.length < 1) { box.classList.add('hidden'); box.innerHTML=''; return; }
-    const results = RD_DATA.common.filter(x => [x.title,x.cat,x.desc].some(v => String(v).toLowerCase().includes(q))).slice(0,6);
-    if (!results.length) {
-      box.innerHTML = '<div class="live-empty">Keine direkten Treffer gefunden.</div>';
-    } else {
-      box.innerHTML = results.map((x,i) => `<button type="button" class="live-result" data-live-guide="${esc(x.id)}"><span class="live-icon">${['♥','🫁','🧠','✚','⚠','✦'][i%6]}</span><span class="live-copy"><strong>${esc(x.title)}</strong><small>${esc(x.cat)} · ${esc(x.desc)}</small></span><span class="badge ${x.priority==='Kritisch'?'red':''}">${esc(x.priority)}</span></button>`).join('');
-    }
+  }
+  function renderPreview(input, showEmpty=false) {
+    const box = ensurePreview(input), q = input.value.trim(), results = getResults(q);
+    if (!q && !showEmpty) { box.classList.add('hidden'); box.innerHTML=''; return; }
+    if (!results.length) { box.innerHTML='<div class="live-empty">Keine direkten Treffer gefunden.</div>'; box.classList.remove('hidden'); return; }
+    box.innerHTML = `${!q ? '<div class="live-preview-title">Schnelltreffer</div>' : ''}` + results.map((x,i)=>`<button type="button" class="live-result" data-live-guide="${esc(x.id)}"><span class="live-icon">${icons[i%icons.length]}</span><span class="live-copy"><strong>${esc(x.title)}</strong><small>${esc(x.cat)} · ${esc(x.desc)}</small></span><span class="badge ${x.priority==='Kritisch'?'red':''}">${esc(x.priority)}</span></button>`).join('');
     box.classList.remove('hidden');
-  };
-  document.addEventListener('input', e => {
-    if (e.target.matches('#globalSearch, #abfrageSearch')) search(e.target);
-  });
-  document.addEventListener('click', e => {
-    const hit = e.target.closest('[data-live-guide]');
-    if (hit) {
-      const id = hit.dataset.liveGuide;
-      if (typeof window.openGuide === 'function') window.openGuide(id);
-      else document.querySelector(`[data-guide="${CSS.escape(id)}"]`)?.click();
-      hit.closest('.live-search-preview')?.classList.add('hidden');
-      return;
-    }
-    document.querySelectorAll('.live-search-preview').forEach(box => { if (!box.contains(e.target) && !box.parentElement.contains(e.target)) box.classList.add('hidden'); });
+  }
+  function wireInput(input) {
+    if (!input || input.dataset.liveSearchWired==='1') return;
+    input.dataset.liveSearchWired='1';
+    input.addEventListener('input',()=>renderPreview(input,true));
+    input.addEventListener('focus',()=>renderPreview(input,true));
+    input.addEventListener('keydown',e=>{if(e.key==='Escape')renderPreview(input,false);});
+  }
+  function wireAll(){document.querySelectorAll('#globalSearch,#abfrageSearch').forEach(wireInput);}
+  document.addEventListener('DOMContentLoaded',wireAll);
+  wireAll();
+  new MutationObserver(wireAll).observe(document.body,{childList:true,subtree:true});
+  document.addEventListener('click',e=>{
+    const hit=e.target.closest('[data-live-guide]');
+    if(hit){const id=hit.dataset.liveGuide;if(typeof window.openGuide==='function')window.openGuide(id);hit.closest('.live-search-preview')?.classList.add('hidden');return;}
+    document.querySelectorAll('.live-search-preview').forEach(box=>{const input=box.parentElement?.querySelector('input');if(e.target!==input&&!box.contains(e.target))box.classList.add('hidden');});
   });
 })();
