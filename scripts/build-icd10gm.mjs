@@ -1,7 +1,9 @@
 import fs from 'node:fs';
+import path from 'node:path';
+import {execFileSync} from 'node:child_process';
 
+const packageDir=process.argv[2]||'.bfarm-packages';
 const out='krankheitslexikon-all-2026.js';
-const TERMINAL_URL='https://terminologien.bfarm.de/fhir/ValueSet/$expand?url=https%3A%2F%2Fterminologien.bfarm.de%2Ffhir%2FValueSet%2Ficd10gm-terminale-codes&valueSetVersion=2026';
 const EXPECTED=14370;
 
 function categoryFor(code){
@@ -10,24 +12,50 @@ function categoryFor(code){
   return map[c]||'Sonstige';
 }
 function slug(code){return String(code).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'unknown'}
-async function fetchJson(url){
-  const res=await fetch(url,{headers:{Accept:'application/fhir+json, application/json'}});
-  if(!res.ok)throw new Error(`BfArM FHIR request failed: HTTP ${res.status}`);
-  return res.json();
+function walk(dir,pattern,results=[]){
+  for(const e of fs.readdirSync(dir,{withFileTypes:true})){
+    const p=path.join(dir,e.name);
+    if(e.isDirectory())walk(p,pattern,results);
+    else if(pattern.test(e.name))results.push(p);
+  }
+  return results;
 }
-const valueSet=await fetchJson(TERMINAL_URL);
-const concepts=valueSet?.expansion?.contains||[];
-if(!Array.isArray(concepts)||concepts.length!==EXPECTED)throw new Error(`Expected exactly ${EXPECTED} terminal ICD-10-GM 2026 concepts, received ${concepts.length}`);
-const seen=new Set();
-const entries=[];
-for(const c of concepts){
-  const code=String(c?.code||'').trim();
-  const name=String(c?.display||'').trim();
-  if(!code||!name||seen.has(code))continue;
-  seen.add(code);
-  entries.push({id:`icd10gm-${slug(code)}`,name,category:categoryFor(code),code,aliases:'',summary:`ICD-10-GM 2026 · ${name}`,focus:'Amtlicher terminaler ICD-10-GM-2026-Kode für Diagnoseklassifikation und strukturierte Recherche.',redFlags:'Aus dem ICD-Kode allein lässt sich keine individuelle Dringlichkeit oder Behandlungsentscheidung ableiten.',education:'Für Ausbildung und Recherche: Kode und offizielle Bezeichnung gemeinsam verwenden; lokale SOPs und aktuelle Leitlinien beachten.',source:'BfArM ICD-10-GM 2026, ValueSet ICD10GM_Terminale_Codes',terminal:true});
+const archives=walk(packageDir,/bfarm\.terminologien\.icd10gm-.*\.tar\.gz$/i);
+if(!archives.length)throw new Error(`No downloaded BfArM ICD-10-GM package found in ${packageDir}`);
+const archive=archives.sort().at(-1);
+const extractDir='.icd10gm-package';
+fs.rmSync(extractDir,{recursive:true,force:true});
+fs.mkdirSync(extractDir,{recursive:true});
+execFileSync('tar',['-xzf',archive,'-C',extractDir],{stdio:'inherit'});
+const candidates=walk(extractDir,/CodeSystem-icd10gm.*2026\.json$/i);
+if(!candidates.length)throw new Error('No 2026 ICD-10-GM CodeSystem JSON found in downloaded BfArM package');
+const codeSystem=candidates.find(p=>/CodeSystem-icd10gm-2026\.json$/i.test(p))||candidates[0];
+const json=JSON.parse(fs.readFileSync(codeSystem,'utf8'));
+const flat=[];
+function visit(concepts,parent=null){
+  for(const c of concepts||[]){
+    if(!c?.code)continue;
+    flat.push({code:String(c.code),display:String(c.display||c.definition||c.code),hasChildren:Array.isArray(c.concept)&&c.concept.length>0,parent});
+    visit(c.concept,c.code);
+  }
 }
-if(entries.length!==EXPECTED)throw new Error(`Duplicate or malformed codes reduced the catalogue to ${entries.length}; expected ${EXPECTED}`);
-const meta={version:'2026',terminalCount:entries.length,source:'BfArM ICD-10-GM 2026 · ICD10GM_Terminale_Codes'};
+visit(json.concept||[]);
+const terminal=flat.filter(x=>!x.hasChildren);
+const byCode=new Map(terminal.map(x=>[x.code,x]));
+const entries=[...byCode.values()].map(x=>({
+  id:`icd10gm-${slug(x.code)}`,
+  name:x.display,
+  category:categoryFor(x.code),
+  code:x.code,
+  aliases:'',
+  summary:`ICD-10-GM 2026 · ${x.display}`,
+  focus:'Amtlicher terminaler ICD-10-GM-2026-Kode für Diagnoseklassifikation und strukturierte Recherche.',
+  redFlags:'Aus dem ICD-Kode allein lässt sich keine individuelle Dringlichkeit oder Behandlungsentscheidung ableiten.',
+  education:'Für Ausbildung und Recherche: Kode und offizielle Bezeichnung gemeinsam verwenden; lokale SOPs und aktuelle Leitlinien beachten.',
+  source:'BfArM ICD-10-GM 2026, maschinenlesbare FHIR-Fassung',
+  terminal:true
+}));
+if(entries.length!==EXPECTED)throw new Error(`Expected exactly ${EXPECTED} terminal codes, received ${entries.length} from ${codeSystem}`);
+const meta={version:'2026',terminalCount:entries.length,conceptCount:flat.length,source:'BfArM ICD-10-GM 2026'};
 fs.writeFileSync(out,`window.RD_ICD10GM_ALL=${JSON.stringify(entries)};\nwindow.RD_ICD10GM_META=${JSON.stringify(meta)};\n`,'utf8');
-console.log(`Generated ${entries.length} terminal ICD-10-GM 2026 concepts.`);
+console.log(`Generated ${entries.length} terminal ICD-10-GM 2026 concepts from ${path.basename(archive)}.`);
