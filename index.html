@@ -21,6 +21,7 @@
   <link rel="stylesheet" href="checklists.css">
   <link rel="stylesheet" href="checklists-enhanced.css">
   <link rel="stylesheet" href="notfallbilder.css">
+  <link rel="stylesheet" href="einsatzlagen.css">
 </head>
 <body>
   <div class="app-shell">
@@ -37,7 +38,7 @@
         <button class="nav-item" data-view="wissen"><span>▤</span> Wissen</button>
       </nav>
       <div class="sidebar-card"><div class="status-dot"></div><div><strong>Offline bereit</strong><span>Nach dem ersten Laden lokal nutzbar</span></div></div>
-      <div class="sidebar-footer">Version 1.10 · Ausbildungs-/RP-Modus</div>
+      <div class="sidebar-footer">Version 1.11 · Ausbildungs-/RP-Modus</div>
     </aside>
     <main class="main">
       <header class="topbar">
@@ -64,6 +65,7 @@
   <script src="notfallbilder.js"></script>
   <script src="search-preview-v2.js"></script>
   <script src="manv.js"></script>
+  <script src="einsatzlagen.js"></script>
   <script>
     if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./cache-v7.js').catch(()=>{}));
     let deferredInstallPrompt;
