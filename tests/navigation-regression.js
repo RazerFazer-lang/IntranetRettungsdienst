@@ -43,12 +43,24 @@ const errors=[];
 
     await page.locator('.nav-item[data-view="dashboard"]').click();
     await page.locator('.suite-hero').waitFor({timeout:5000});
-    const suiteRoutes=['abcde','dokumentation','medlernen','gefahren','psychiatrie','ausbildung','pruefung','wissensdatenbank','suche','statistik'];
-    for(const route of suiteRoutes){
-      await page.locator(`[data-suite-route="${route}"]`).first().click();
+    const dashboardRoutes=['abcde','dokumentation','medlernen','gefahren','psychiatrie','ausbildung','pruefung','wissensdatenbank','suche'];
+    for(const route of dashboardRoutes){
+      const card=page.locator(`[data-suite-route="${route}"]`).first();
+      if(await card.count()!==1)throw new Error(`dashboard route missing: ${route}`);
+      await card.click();
       await page.waitForTimeout(80);
-      if(!(await page.locator('.nav-item.active').first().getAttribute('data-view')===route))throw new Error(`suite route did not activate ${route}`);
+      if(!(await page.locator('.nav-item.active').first().getAttribute('data-view')===route))throw new Error(`dashboard route did not activate ${route}`);
       if(!(await page.locator('.suite-hero').count()))throw new Error(`suite view missing for ${route}`);
+      await page.locator('.nav-item[data-view="dashboard"]').click();
+      await page.locator('.suite-hero').waitFor({timeout:5000});
+    }
+
+    const suiteViews=['abcde','dokumentation','medlernen','gefahren','psychiatrie','ausbildung','pruefung','wissensdatenbank','suche','statistik'];
+    for(const view of suiteViews){
+      await page.locator(`.nav-item[data-view="${view}"]`).click();
+      await page.waitForTimeout(80);
+      if(!(await page.locator('.nav-item.active').first().getAttribute('data-view')===view))throw new Error(`suite sidebar navigation failed: ${view}`);
+      if(!(await page.locator('.suite-hero').count()))throw new Error(`suite sidebar view missing: ${view}`);
     }
 
     const mobile=await browser.newPage({viewport:{width:390,height:844}});
