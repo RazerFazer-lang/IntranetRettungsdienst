@@ -44,6 +44,18 @@
     return true;
   }
 
+  // Sidebar entries belonging to the training suite are handled here instead
+  // of relying on the legacy app.js renderer, which does not know these views.
+  document.addEventListener('click',e=>{
+    const b=e.target.closest?.('.nav-item');
+    if(!b)return;
+    const view=b.dataset.view;
+    if(!SUITE_VIEWS.has(view))return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    openSuite(view);
+  },true);
+
   // Dashboard cards, quick-start buttons and global-search results use data-suite-route.
   document.addEventListener('click',e=>{
     const route=e.target.closest?.('[data-suite-route]')?.dataset.suiteRoute;
