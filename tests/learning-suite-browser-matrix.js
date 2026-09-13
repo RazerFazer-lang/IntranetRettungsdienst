@@ -26,6 +26,15 @@ async function answerCorrect(page,name){const card=page.locator('.learning-quest
    if((await page.locator('.suite-stat strong').first().textContent())?.trim()!=='100%')throw new Error(`${BROWSER}: progress migration did not reach 100%`);
    if((await page.locator('.learn-module.done').count())!==7)throw new Error(`${BROWSER}: migration did not mark seven learning modules done`);
 
+   // Regression: the sidebar Startseite must always open the learning-center home,
+   // never the legacy operational dashboard from app.js.
+   await nav(page,'abfrage');
+   if(!(await page.locator('.view-title h1').filter({hasText:'Womit brauchst du Hilfe?'}).count()))throw new Error(`${BROWSER}: Abfragehilfe did not open`);
+   await nav(page,'dashboard');
+   await page.locator('.learn-hero h1').waitFor({timeout:7000});
+   if(!(await page.locator('.learn-hero h1').filter({hasText:'Startseite – dein Lernzentrum.'}).count()))throw new Error(`${BROWSER}: Startseite opened the wrong dashboard`);
+   if(await page.locator('.hero h1').filter({hasText:'Strukturiert handeln.'}).count())throw new Error(`${BROWSER}: legacy dashboard is still visible on Startseite`);
+
    await page.evaluate(()=>{localStorage.removeItem('rd-suite-progress-v2');localStorage.removeItem('rd-suite-progress-v1')});
    await page.reload({waitUntil:'networkidle'});
 
