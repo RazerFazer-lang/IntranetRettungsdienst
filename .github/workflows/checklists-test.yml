@@ -1,0 +1,31 @@
+name: Checklist Tests
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax checks
+        run: |
+          node --check app.js
+          node --check checklists.js
+          node --check data.js
+          node --check meds.js
+          node --check notfallbilder.js
+          node --check manv.js
+          node --check search-preview-v2.js
+      - name: Checklist runtime smoke test
+        run: node tests/checklists-smoke.test.js
