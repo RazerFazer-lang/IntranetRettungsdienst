@@ -1,5 +1,14 @@
 (()=>{
   const SUITE_VIEWS=new Set(['dashboard','abcde','dokumentation','medlernen','gefahren','psychiatrie','ausbildung','pruefung','wissensdatenbank','suche','statistik']);
+  const STANDARD_VIEWS={
+    abfrage:['Abfragehilfe','renderAbfrage'],
+    notfallbilder:['Notfallbilder','renderNotfallbilder'],
+    checklisten:['Checklisten','renderChecklisten'],
+    medikamente:['Medikamente','renderMedikamente'],
+    manv:['MANV / Sichtung','renderManv'],
+    rechner:['Rechner','renderRechner'],
+    wissen:['Wissen','renderWissen']
+  };
   const $=s=>document.querySelector(s);
   const closeDrawer=()=>{
     $('#sidebar')?.classList.remove('open');
@@ -30,6 +39,18 @@
     return true;
   }
 
+  function openStandard(view){
+    const meta=STANDARD_VIEWS[view];
+    if(!meta||typeof window[meta[1]]!=='function')return false;
+    cleanupScenes();
+    setActive(view);
+    breadcrumb(meta[0]);
+    window[meta[1]]();
+    if(typeof window.bindDynamic==='function')window.bindDynamic();
+    closeDrawer();
+    return true;
+  }
+
   function openLagebilder(){
     if(typeof window.renderEinsatzlagen!=='function')return false;
     ensureLagebilderButton();
@@ -44,16 +65,22 @@
     return true;
   }
 
-  // Sidebar entries belonging to the training suite are handled here instead
-  // of relying on the legacy app.js renderer, which does not know these views.
+  // Own the complete sidebar routing layer. The legacy app.js uses a lexical
+  // currentView variable, so standard views are opened by their render
+  // functions directly instead of depending on a second competing router.
   document.addEventListener('click',e=>{
     const b=e.target.closest?.('.nav-item');
     if(!b)return;
     const view=b.dataset.view;
-    if(!SUITE_VIEWS.has(view))return;
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    openSuite(view);
+    if(SUITE_VIEWS.has(view)){
+      e.preventDefault();e.stopImmediatePropagation();openSuite(view);return;
+    }
+    if(view==='lagebilder'){
+      e.preventDefault();e.stopImmediatePropagation();openLagebilder();return;
+    }
+    if(STANDARD_VIEWS[view]){
+      e.preventDefault();e.stopImmediatePropagation();openStandard(view);
+    }
   },true);
 
   // Dashboard cards, quick-start buttons and global-search results use data-suite-route.
@@ -63,15 +90,6 @@
     e.preventDefault();
     e.stopImmediatePropagation();
     openSuite(route);
-  },true);
-
-  // Dedicated Lagebilder navigation is the only special navigation item.
-  document.addEventListener('click',e=>{
-    const b=e.target.closest?.('.nav-item[data-view="lagebilder"]');
-    if(!b)return;
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    openLagebilder();
   },true);
 
   // The legacy Notfallbilder renderer is wrapped by einsatzlagen.js. Keep that
