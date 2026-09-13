@@ -11,6 +11,7 @@ function categoryFor(code){
 }
 function slug(code){return String(code).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'unknown'}
 function decodeHtml(s){return String(s).replace(/&nbsp;/gi,' ').replace(/&amp;/gi,'&').replace(/&quot;/gi,'\"').replace(/&#39;/gi,"'").replace(/&lt;/gi,'<').replace(/&gt;/gi,'>').replace(/&#x([0-9a-f]+);/gi,(_,h)=>String.fromCodePoint(parseInt(h,16))).replace(/&#(\d+);/g,(_,n)=>String.fromCodePoint(Number(n)))}
+function cleanText(s){return decodeHtml(String(s).replace(/<br\s*\/?>/gi,' ').replace(/<[^>]+>/g,' ')).replace(/\s+/g,' ').trim()}
 async function fetchText(url){
   const res=await fetch(url,{headers:{'User-Agent':'IntranetRettungsdienst ICD-10-GM 2026 importer','Accept':'text/html,application/xhtml+xml'}});
   if(!res.ok)throw new Error(`BfArM request failed: HTTP ${res.status} for ${url}`);
@@ -24,24 +25,34 @@ if(uniqueFiles.length<200)throw new Error(`BfArM index discovery returned only $
 console.log(`Discovered ${uniqueFiles.length} official BfArM ICD-10-GM 2026 block pages.`);
 
 const entriesByCode=new Map();
+let headingCount=0;
+let listCount=0;
+let threeCharCount=0;
+const codePattern=/^([A-Z]\d{2}(?:\.[0-9A-Z]+)?!?)(?:\s+|$)(.*)$/i;
+const accept=(raw,source)=>{
+  const text=cleanText(raw);
+  const m=text.match(codePattern);
+  if(!m)return;
+  const code=m[1].toUpperCase();
+  const name=m[2].trim();
+  // Group headings use a trailing '-' (e.g. A00.-) and manifestation/reference
+  // codes use '*' markers. Neither is a terminal ICD-10-GM concept.
+  if(code.endsWith('-')||code.includes('*')||!name||name==='-')return;
+  if(!code.includes('.'))threeCharCount++;
+  entriesByCode.set(code,{code,name,source});
+};
+
 for(let i=0;i<uniqueFiles.length;i+=8){
   const batch=uniqueFiles.slice(i,i+8);
   const pages=await Promise.all(batch.map(async file=>({file,html:await fetchText(new URL(file,INDEX_URL).href)})));
   for(const {file,html} of pages){
-    // BfArM's official block pages render concrete ICD codes as h5 headings;
-    // higher-level group headings use h4, so h5 gives the terminal catalogue.
-    const headings=[...html.matchAll(/<h5\b[^>]*>([\s\S]*?)<\/h5>/gi)];
-    for(const match of headings){
-      const raw=decodeHtml(match[1]).replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
-      const m=raw.match(/^([A-Z]\d{2}\.[0-9A-Z]+!?)(?:\s+|$)(.*)$/i);
-      if(!m)continue;
-      const code=m[1].toUpperCase();
-      const name=m[2].trim();
-      if(!name||name==='-'||code.includes('*'))continue;
-      entriesByCode.set(code,{code,name});
-    }
+    // Normal leaf codes are rendered as h5 elements. Some ICD-10-GM terminal
+    // codes are one level deeper (for example A04.70-A04.79) and are rendered
+    // as list items. Capture both representations.
+    for(const m of html.matchAll(/<h5\b[^>]*>([\s\S]*?)<\/h5>/gi)){headingCount++;accept(m[1],'h5');}
+    for(const m of html.matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/gi)){listCount++;accept(m[1],'li');}
   }
-  console.log(`Parsed ${Math.min(i+8,uniqueFiles.length)}/${uniqueFiles.length} pages; ${entriesByCode.size} unique terminal candidates.`);
+  console.log(`Parsed ${Math.min(i+8,uniqueFiles.length)}/${uniqueFiles.length} pages; ${entriesByCode.size} unique terminal candidates (${headingCount} headings, ${listCount} list items).`);
 }
 
 const entries=[...entriesByCode.values()].sort((a,b)=>a.code.localeCompare(b.code,'en')).map(x=>({
@@ -58,8 +69,11 @@ const entries=[...entriesByCode.values()].sort((a,b)=>a.code.localeCompare(b.cod
   terminal:true
 }));
 
+console.log(`Terminal candidates: ${entries.length}; 3-character terminal codes detected: ${threeCharCount}.`);
 if(entries.length!==EXPECTED){
-  throw new Error(`Expected exactly ${EXPECTED} terminal ICD-10-GM 2026 codes, extracted ${entries.length}.`);
+  const first=entries.slice(0,12).map(x=>`${x.code} ${x.name}`).join(' | ');
+  const last=entries.slice(-12).map(x=>`${x.code} ${x.name}`).join(' | ');
+  throw new Error(`Expected exactly ${EXPECTED} terminal ICD-10-GM 2026 codes, extracted ${entries.length}. First: ${first}. Last: ${last}`);
 }
 
 const meta={version:'2026',terminalCount:entries.length,conceptCount:entries.length,source:'BfArM ICD-10-GM 2026'};
