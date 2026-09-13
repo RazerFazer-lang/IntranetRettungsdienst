@@ -1,257 +1,293 @@
-const RD_CHECKLISTS={
-  'ABCDE':{
-    desc:'Strukturierte Erstbeurteilung mit Befunden, Re-Evaluation und priorisierten nächsten Schritten.',
-    questions:[
-      ['Eigenschutz','Ist die Einsatzstelle sicher und sind relevante Gefahren berücksichtigt?',['ja','nein / Gefahr','unklar']],
-      ['Reaktionslage','Ist die Person adäquat ansprechbar und reagiert passend?',['ja','eingeschränkt','nein']],
-      ['Atemweg','Ist der Atemweg frei und ohne offensichtliche Bedrohung?',['ja','auffällig','unklar']],
-      ['Atmung','Ist die Atmung unauffällig bzw. ohne deutliche Atemnot?',['ja','auffällig','keine normale Atmung']],
-      ['Kreislauf','Ist der Kreislauf klinisch stabil ohne deutliche Schockzeichen?',['ja','auffällig','instabil']],
-      ['Blutung','Besteht eine relevante äußere Blutung oder ein entsprechender Verdacht?',['nein','ja','unklar']],
-      ['Neurologie','Bestehen neue Bewusstseins- oder neurologische Auffälligkeiten?',['nein','ja','unklar']],
-      ['Schmerz / Beschwerden','Sind Hauptbeschwerde und Schmerzprofil klar erfasst?',['ja','teilweise','nein']],
-      ['Exposition / Umgebung','Wurden relevante Verletzungen, Hautbefunde, Temperatur und Umgebung berücksichtigt?',['ja','teilweise','nein']],
-      ['Vitalwerte','Sind die für die Situation relevanten Vitalwerte erhoben und dokumentiert?',['ja','teilweise','nein']],
-      ['Re-Evaluation','Wurde nach relevanter Veränderung erneut ABCDE-orientiert beurteilt?',['ja','noch nicht','nicht erforderlich']],
-      ['Übergabebereitschaft','Sind Zeitverlauf, Befunde und Veränderungen nachvollziehbar dokumentiert?',['ja','teilweise','nein']]
-    ],
-    priorities:[
-      ['P1 · Sofort','Eigenschutz und unmittelbare Gefahrenkontrolle sicherstellen.'],
-      ['P1 · Sofort','Bei kritischer Auffälligkeit Team alarmieren und den gültigen lokalen Notfall-/Reanimationsalgorithmus anwenden.'],
-      ['P1 · Sofort','Atemweg, Atmung und Kreislauf nach lokalem Standard priorisieren.'],
-      ['P2 · Danach','Monitoring und vollständige strukturierte Untersuchung vervollständigen.'],
-      ['P2 · Danach','Relevante Befunde, Verlauf und Veränderungen zeitnah festhalten.'],
-      ['P3 · Transport','Transport- und Zielentscheidung nach lokaler SOP bzw. ärztlicher Vorgabe umsetzen.'],
-      ['P3 · Übergabe','Situation, Hintergrund, Einschätzung und weiteres Vorgehen strukturiert übergeben.'],
-      ['P4 · Abschluss','Re-Evaluation dokumentieren und offene Punkte vor Abschluss klären.']
-    ],
-    meds:[]
-  },
-  'Reanimation':{
-    desc:'Geführte Reanimationsabfrage mit Sicherheits-, Team-, Ablauf- und Übergabepunkten. Für die konkrete Versorgung gilt ausschließlich der aktuelle lokale Algorithmus.',
-    questions:[
-      ['Einsatzstelle','Ist der Zugang zur Person sicher möglich?',['ja','nein / Gefahr','unklar']],
-      ['Bewusstsein','Ist die Person nicht bzw. nicht adäquat reagierend?',['ja','nein','unklar']],
-      ['Atmung','Ist eine normale Atmung sicher vorhanden?',['ja','auffällig / unklar','nein']],
-      ['Alarmierung','Sind Notfallteam / weitere Ressourcen gemäß lokalem Ablauf alarmiert?',['ja','teilweise','nein']],
-      ['Reanimationsteam','Sind Rollen und Verantwortlichkeiten im Team geklärt?',['ja','teilweise','nein']],
-      ['Defibrillation','Ist ein AED/Defibrillator verfügbar bzw. angefordert?',['ja','unterwegs','nein']],
-      ['Atemweg / Beatmung','Ist eine geeignete lokale Strategie für Atemweg und Beatmung festgelegt?',['ja','teilweise','nein']],
-      ['Reversible Ursachen','Werden reversible Ursachen systematisch nach lokalem Algorithmus gesucht?',['ja','teilweise','nein']],
-      ['Zeitpunkte','Sind Beginn, Rhythmusanalysen und relevante Zeitpunkte dokumentiert?',['ja','teilweise','nein']],
-      ['ROSC / Verlauf','Gab es eine relevante Zustandsänderung oder Rückkehr eines Kreislaufs?',['nein','ja','unklar']],
-      ['Post-Reanimation','Falls Kreislauf zurückgekehrt ist: ist der lokale Post-Reanimationspfad vorbereitet?',['ja','teilweise','nein / nicht zutreffend']],
-      ['Übergabe','Sind Reanimationsdauer, Maßnahmen und Verlauf für die Übergabe nachvollziehbar?',['ja','teilweise','nein']]
-    ],
-    priorities:[
-      ['P1 · Sofort','Sicherheit prüfen, Hilfe alarmieren und nach aktuellem lokalen Reanimationsalgorithmus handeln.'],
-      ['P1 · Sofort','Bei fehlender normaler Atmung sofort den gültigen Reanimationsablauf priorisieren.'],
-      ['P1 · Sofort','Defibrillation und hochwertige Reanimation entsprechend dem lokalen Algorithmus organisieren.'],
-      ['P1 · Sofort','Reversible Ursachen und relevante Sonderumstände systematisch berücksichtigen.'],
-      ['P2 · Laufend','Teamrollen, Zeitpunkte, Rhythmusanalysen und relevante Maßnahmen fortlaufend dokumentieren.'],
-      ['P2 · Laufend','Bei Zustandsänderung sofort neu beurteilen und den passenden lokalen Pfad wählen.'],
-      ['P3 · Nach ROSC','Post-Reanimationsversorgung und Transport-/Zielpfad nach lokaler SOP vorbereiten.'],
-      ['P4 · Übergabe','Strukturierte Übergabe mit Ausgangslage, Verlauf, Maßnahmen, Zeiten und aktuellem Zustand.']
-    ],
-    meds:['Epinephrin Injector']
-  },
-  'Übergabe':{
-    desc:'Geführte Übergabeabfrage, damit wichtige Informationen nicht verloren gehen.',
-    questions:[
-      ['Situation','Ist das aktuelle Hauptproblem in einem Satz klar beschrieben?',['ja','teilweise','nein']],
-      ['Zeitverlauf','Sind Beginn und relevante Zeitpunkte bekannt?',['ja','teilweise','nein / unbekannt']],
-      ['Anamnese','Sind relevante Vorerkrankungen und Dauermedikation erfasst?',['ja','teilweise','nein']],
-      ['Allergien','Sind relevante Allergien bzw. Unverträglichkeiten bekannt?',['ja','nein bekannt','unklar']],
-      ['Befunde','Sind die wesentlichen Untersuchungsbefunde und Vitalwerte dokumentiert?',['ja','teilweise','nein']],
-      ['Verlauf','Sind relevante Veränderungen während des Einsatzes festgehalten?',['ja','teilweise','nein']],
-      ['Maßnahmen','Sind bereits erfolgte relevante Maßnahmen nachvollziehbar dokumentiert?',['ja','teilweise','nein']],
-      ['Reaktion','Ist dokumentiert, wie die Person auf relevante Maßnahmen bzw. den Verlauf reagierte?',['ja','teilweise','nein']],
-      ['Risiken','Sind aktuelle Risiken oder offene Probleme ausdrücklich genannt?',['ja','teilweise','nein']],
-      ['Empfehlung','Ist das weitere Vorgehen bzw. der offene Bedarf klar formuliert?',['ja','teilweise','nein']],
-      ['Rückfragen','Wurden Rückfragen ermöglicht und offene Punkte geklärt?',['ja','teilweise','nein']],
-      ['Dokumentation','Ist die Übergabe selbst und der aktuelle Zustand dokumentiert?',['ja','teilweise','nein']]
-    ],
-    priorities:[
-      ['P1 · Vor Übergabe','Aktuelle lebensbedrohliche Auffälligkeiten oder unmittelbare Risiken zuerst nennen.'],
-      ['P2 · Kerninfos','Situation, Zeitverlauf, Hintergrund und wesentliche Befunde kurz zusammenfassen.'],
-      ['P2 · Verlauf','Relevante Veränderungen und Reaktionen auf Maßnahmen nennen.'],
-      ['P3 · Weiteres Vorgehen','Offene Aufgaben, Risiken und geplanten nächsten Schritt eindeutig benennen.'],
-      ['P4 · Abschluss','Rückfragen klären und die Übergabe vollständig dokumentieren.']
-    ],
-    meds:[]
-  },
-  'Trauma':{
-    desc:'Traumaabfrage von Einsatzstelle und Mechanismus bis Re-Evaluation, Wärmeerhalt und Übergabe.',
-    questions:[
-      ['Einsatzstelle','Ist die Unfall-/Gewaltstelle sicher und ist der Mechanismus bekannt?',['ja','teilweise','nein / Gefahr']],
-      ['Mechanismus','Ist der Unfallmechanismus bzw. das Ereignis nachvollziehbar dokumentiert?',['ja','teilweise','nein']],
-      ['Blutung','Besteht eine relevante äußere Blutung oder ein entsprechender Verdacht?',['nein','ja','unklar']],
-      ['Atemweg / Atmung','Gibt es relevante Auffälligkeiten an Atemweg oder Atmung?',['nein','ja','unklar']],
-      ['Kreislauf','Gibt es relevante Hinweise auf Kreislaufinstabilität oder schlechte Perfusion?',['nein','ja','unklar']],
-      ['Neurologie','Bestehen neue Bewusstseins- oder neurologische Auffälligkeiten?',['nein','ja','unklar']],
-      ['Verletzungsmuster','Sind relevante Verletzungen systematisch erfasst?',['ja','teilweise','nein']],
-      ['Begleitverletzungen','Wurde der gesamte Körperkontext erneut auf übersehene Verletzungen geprüft?',['ja','teilweise','nein']],
-      ['Wärmeerhalt','Ist Wärmeerhalt ausreichend berücksichtigt?',['ja','teilweise','nein']],
-      ['Schmerz','Sind Schmerzstärke, Lokalisation und Verlauf dokumentiert?',['ja','teilweise','nein']],
-      ['Re-Evaluation','Wurde nach Maßnahmen und relevanten Veränderungen erneut beurteilt?',['ja','noch nicht','nicht erforderlich']],
-      ['Übergabe','Sind Mechanismus, Befunde, Verlauf und offene Risiken vollständig?',['ja','teilweise','nein']]
-    ],
-    priorities:[
-      ['P1 · Sofort','Eigenschutz und Gefahrenkontrolle sicherstellen.'],
-      ['P1 · Sofort','Lebensbedrohliche Blutungen, Atemwegs-/Atmungs- und Kreislaufprobleme nach lokalem Traumaalgorithmus priorisieren.'],
-      ['P1 · Sofort','Bei kritischer Auffälligkeit Teamressourcen und weiteren lokalen Notfallpfad aktivieren.'],
-      ['P2 · Danach','Verletzungsmuster vervollständigen und übersehene Begleitverletzungen suchen.'],
-      ['P2 · Danach','Monitoring, Schmerz-/Verlaufsdokumentation und Re-Evaluation fortführen.'],
-      ['P3 · Transport','Zielklinik und Transportstrategie nach lokalem Trauma-/Zuweisungspfad.'],
-      ['P4 · Übergabe','Mechanismus, relevante Befunde, Veränderungen und offene Risiken strukturiert übergeben.']
-    ],
-    meds:['Tranexamsäure','Metamizol']
-  },
-  'Pädiatrie':{
-    desc:'Altersgerechte Abfrage mit Schwerpunkt auf Verhalten, Atmung, Kreislauf, Fremdanamnese und Sicherheitsaspekten.',
-    questions:[
-      ['Alter / Gewicht','Sind Alter und ein für die lokale Versorgung verwendbares Gewicht bekannt?',['ja','ungefähr','nein']],
-      ['Verhalten','Ist das Verhalten für das Kind plausibel oder deutlich verändert?',['unauffällig','verändert','unklar']],
-      ['Bewusstsein','Ist die Reaktionslage altersgerecht?',['ja','eingeschränkt','nein']],
-      ['Atmung','Gibt es auffällige Atemarbeit oder andere relevante Atemprobleme?',['nein','ja','unklar']],
-      ['Kreislauf / Perfusion','Gibt es auffällige Perfusions- oder Kreislaufzeichen?',['nein','ja','unklar']],
-      ['Fremdanamnese','Sind Angaben der Eltern/Bezugspersonen zum Verlauf vorhanden?',['ja','teilweise','nein']],
-      ['Vorerkrankungen','Sind relevante Vorerkrankungen und Dauermedikation bekannt?',['ja','nein','unklar']],
-      ['Trink-/Essverhalten','Ist eine relevante Veränderung von Trinken, Essen oder Ausscheidungen aufgefallen?',['nein','ja','unklar']],
-      ['Fieber / Infekt','Gibt es Hinweise auf einen Infekt oder deutliche Verschlechterung?',['nein','ja','unklar']],
-      ['Sicherheit / Umfeld','Gibt es Auffälligkeiten im Umfeld, die für die Versorgung relevant sind?',['nein','ja','unklar']],
-      ['Re-Evaluation','Wurde die Entwicklung nach relevanten Veränderungen erneut beurteilt?',['ja','noch nicht','nicht erforderlich']],
-      ['Übergabe','Sind Alter, Gewicht, Verlauf und wesentliche Befunde klar dokumentiert?',['ja','teilweise','nein']]
-    ],
-    priorities:[
-      ['P1 · Sofort','Bei deutlicher Verschlechterung Atemweg, Atmung und Kreislauf nach lokalem pädiatrischem Algorithmus priorisieren.'],
-      ['P1 · Sofort','Alters- und gewichtsbezogene lokale Abläufe sowie passende Ressourcen einsetzen.'],
-      ['P2 · Danach','Fremdanamnese, Verlauf und relevante Vorerkrankungen vervollständigen.'],
-      ['P2 · Danach','Monitoring und Re-Evaluation altersgerecht fortführen.'],
-      ['P3 · Transport','Geeigneten Zielpfad nach lokalem pädiatrischem Vorgehen klären.'],
-      ['P4 · Übergabe','Alter, Gewicht, Verlauf, Befunde und relevante Beobachtungen vollständig übergeben.']
-    ],
-    meds:[]
-  },
-  'Geburt':{
-    desc:'Geburtsbezogene Abfrage für Mutter und Kind mit klarer Trennung der beiden Patientinnen/Patienten.',
-    questions:[
-      ['Schwangerschaftswoche','Ist die Schwangerschaftswoche bekannt?',['ja','ungefähr','unbekannt']],
-      ['Geburtsphase','Ist der aktuelle Geburtsfortschritt beschrieben?',['ja','teilweise','unklar']],
-      ['Mutter – Zustand','Ist die Mutter aktuell kreislauf- und bewusstseinsmäßig stabil?',['ja','auffällig','instabil / unklar']],
-      ['Blutung','Besteht eine relevante Blutung oder ein entsprechender Verdacht?',['nein','ja','unklar']],
-      ['Wehen / Verlauf','Sind Beginn und Verlauf der Wehen bzw. Beschwerden bekannt?',['ja','teilweise','nein']],
-      ['Kind – Zustand','Ist der Zustand des Kindes nach der Geburt erfasst?',['ja','teilweise','noch nicht']],
-      ['Geburtszeitpunkt','Ist der tatsächliche Geburtszeitpunkt dokumentiert?',['ja','ungefähr','nein']],
-      ['Wärmeerhalt','Ist der Wärmeerhalt von Mutter und Kind berücksichtigt?',['ja','teilweise','nein']],
-      ['Komplikationen','Sind relevante Komplikationen oder Risiken bekannt?',['nein','ja','unklar']],
-      ['Ressourcen','Sind passende geburtshilfliche/neonatale Ressourcen nach lokalem Ablauf hinzugezogen?',['ja','teilweise','nein / unklar']],
-      ['Re-Evaluation','Werden Mutter und Kind getrennt und wiederholt beurteilt?',['ja','teilweise','nein']],
-      ['Übergabe','Sind Schwangerschaft, Geburtsverlauf, Zeiten und Zustand von Mutter und Kind dokumentiert?',['ja','teilweise','nein']]
-    ],
-    priorities:[
-      ['P1 · Sofort','Mutter und Kind getrennt beurteilen und bei Instabilität den jeweiligen lokalen Notfallalgorithmus priorisieren.'],
-      ['P1 · Sofort','Relevante Blutung und andere akute Komplikationen sofort erkennen und nach lokaler SOP behandeln lassen.'],
-      ['P2 · Danach','Geburtsphase, Zeitpunkte und relevante Anamnese vervollständigen.'],
-      ['P2 · Danach','Wärmeerhalt und Re-Evaluation von Mutter und Kind fortführen.'],
-      ['P3 · Transport','Geburtshilflichen/neonatalen Zielpfad nach lokalem Standard klären.'],
-      ['P4 · Übergabe','Mutter und Kind mit getrenntem Status, Zeitpunkten und Verlauf strukturiert übergeben.']
-    ],
-    meds:[]
-  },
-  'Intoxikation':{
-    desc:'Intoxikationsabfrage mit Eigenschutz, Substanzinformationen, Bewusstsein, Verlauf und Übergabe. Medikamentenhinweise sind ausschließlich Registerverweise – keine Dosierungsanweisung.',
-    questions:[
-      ['Eigenschutz','Ist die Expositionsgefahr für Team und Umgebung beherrscht?',['ja','nein / Gefahr','unklar']],
-      ['Substanz','Ist die mögliche Substanz bzw. das Produkt bekannt?',['ja','vermutet','unbekannt']],
-      ['Menge','Ist eine ungefähre Menge oder Dosis bekannt?',['ja','ungefähr','nein']],
-      ['Zeitpunkt','Ist der mögliche Expositionszeitpunkt bekannt?',['ja','ungefähr','nein']],
-      ['Applikationsweg','Ist der Aufnahmeweg bekannt?',['ja','unklar','nein']],
-      ['Begleitstoffe','Sind weitere Medikamente, Drogen oder Substanzen möglich?',['nein','ja','unklar']],
-      ['Bewusstsein','Ist die Reaktionslage verändert?',['nein','ja','unklar']],
-      ['Atmung','Ist die Atmung auffällig?',['nein','ja','unklar']],
-      ['Kreislauf','Ist der Kreislauf auffällig oder instabil?',['nein','ja','unklar']],
-      ['Verpackung','Sind Verpackung, Präparatname oder andere Hinweise verfügbar?',['ja','teilweise','nein']],
-      ['Fremdanamnese','Sind Personen oder Quellen für eine ergänzende Anamnese vorhanden?',['ja','teilweise','nein']],
-      ['Übergabe / Giftinfo','Sind relevante Informationen für den lokalen Giftinformations-/SOP-Weg vorbereitet?',['ja','teilweise','nein']]
-    ],
-    priorities:[
-      ['P1 · Sofort','Eigenschutz und Expositionskontrolle zuerst sicherstellen.'],
-      ['P1 · Sofort','Bei Bewusstseins-, Atemwegs-, Atmungs- oder Kreislaufproblemen den lokalen Notfallalgorithmus priorisieren.'],
-      ['P2 · Danach','Substanz, Menge, Zeitpunkt, Aufnahmeweg und Begleitstoffe so genau wie möglich erheben.'],
-      ['P2 · Danach','Verpackungen und verfügbare Informationen für die weitere Versorgung sichern.'],
-      ['P3 · Fachinformation','Lokalen Giftinformations-/SOP-Weg und ärztliche Vorgaben nutzen.'],
-      ['P4 · Übergabe','Toxikologieinformationen, Verlauf und relevante Zeitpunkte strukturiert übergeben.']
-    ],
-    meds:['Naloxon']
-  },
-  'Psychiatrie':{
-    desc:'Strukturierte psychiatrische Abfrage mit Eigenschutz, Kontakt, Orientierung, Eigen-/Fremdgefährdung und Umfeld.',
-    questions:[
-      ['Eigenschutz','Ist das Umfeld für Patient und Team sicher genug?',['ja','nein / Gefahr','unklar']],
-      ['Kontakt','Ist ein ruhiger und nachvollziehbarer Kontakt möglich?',['ja','teilweise','nein']],
-      ['Bewusstsein','Ist die Reaktionslage unauffällig?',['ja','eingeschränkt','unklar']],
-      ['Orientierung','Ist die Person zu Person, Ort und Situation ausreichend orientiert?',['ja','teilweise','nein / unklar']],
-      ['Eigengefährdung','Gibt es Hinweise auf aktuelle Selbstgefährdung?',['nein','ja','unklar']],
-      ['Fremdgefährdung','Gibt es Hinweise auf aktuelle Gefährdung anderer?',['nein','ja','unklar']],
-      ['Agitation','Besteht deutliche Unruhe, Aggression oder schwer steuerbares Verhalten?',['nein','ja','unklar']],
-      ['Substanzen','Sind Alkohol, Drogen oder andere Substanzen möglich?',['nein','ja','unklar']],
-      ['Vorerkrankungen / Medikation','Sind relevante psychiatrische oder somatische Vorerkrankungen und Medikamente bekannt?',['ja','teilweise','nein']],
-      ['Körperliche Ursache','Gibt es Hinweise auf eine somatische oder neurologische Ursache?',['nein','ja','unklar']],
-      ['Re-Evaluation','Wurde die Lage nach Beruhigung oder Veränderung erneut beurteilt?',['ja','noch nicht','nicht erforderlich']],
-      ['Dokumentation','Sind Beobachtungen, Aussagen und Risiken sachlich dokumentiert?',['ja','teilweise','nein']]
-    ],
-    priorities:[
-      ['P1 · Sofort','Eigenschutz, Teampositionierung und sichere Umgebung priorisieren.'],
-      ['P1 · Sofort','Bei Eigen-/Fremdgefährdung den lokal vorgesehenen Schutz-, Unterstützungs- und Alarmierungsweg aktivieren.'],
-      ['P2 · Danach','Kontakt, Orientierung und mögliche somatische bzw. substanzbedingte Ursachen strukturieren.'],
-      ['P2 · Danach','Re-Evaluation nach relevanten Veränderungen fortführen.'],
-      ['P3 · Weiteres Vorgehen','Lokalen psychiatrischen/ärztlichen Zielpfad und erforderliche Unterstützung klären.'],
-      ['P4 · Übergabe','Aussagen, beobachtetes Verhalten, Risiken und Verlauf sachlich und nachvollziehbar übergeben.']
-    ],
-    meds:['Midazolam','Lorazepam']
+/*
+ * Rettungsdienst Intranet – stabile Checklisten
+ * Eine Datei, ein Controller, ein Event-Handler auf #app.
+ * Keine MutationObserver, keine document-level click capture und keine konkurrierenden Renderer.
+ */
+(function(){
+  'use strict';
+
+  const C={
+    'ABCDE':{
+      desc:'Strukturierte Erstbeurteilung von Eigenschutz bis Übergabe.',
+      questions:[
+        ['Eigenschutz','Kann die Einsatzstelle sicher betreten und bearbeitet werden?',[['Ja','normal'],['Nein / Gefahr','critical'],['Unklar','warning']],'Sicherheit zuerst. Bei Gefahr nicht weiter in die Detailabfrage gehen.'],
+        ['Reaktion','Reagiert die Person adäquat auf Ansprache?',[['Ja','normal'],['Eingeschränkt','warning'],['Nein','critical']],'Vigilanz und zeitlichen Verlauf der Veränderung beachten.'],
+        ['Atemweg','Ist der Atemweg frei und ohne offensichtliche Bedrohung?',[['Ja','normal'],['Auffällig','warning'],['Unklar','critical']],'Atemweg hat bei akuter Bedrohung Vorrang vor weiteren Detailfragen.'],
+        ['Atmung','Ist die Atmung ausreichend und ohne relevante Auffälligkeiten?',[['Ja','normal'],['Auffällig','warning'],['Keine normale Atmung','critical']],'Bei deutlicher Verschlechterung den lokalen Notfallalgorithmus priorisieren.'],
+        ['Kreislauf','Wirkt die Kreislaufsituation stabil?',[['Ja','normal'],['Auffällig','warning'],['Instabil','critical']],'Bei Instabilität prioritäre Maßnahmen nicht durch weitere Fragen verzögern.'],
+        ['Blutung','Besteht eine relevante äußere Blutung oder ein begründeter Verdacht?',[['Nein','normal'],['Ja','critical'],['Unklar','warning']],'Blutung aktiv erneut beurteilen und lokalen Blutungsablauf beachten.'],
+        ['Neurologie','Bestehen neue neurologische Auffälligkeiten oder eine relevante Vigilanzänderung?',[['Nein','normal'],['Ja','warning'],['Unklar','warning']],'Beginn, letzte sichere Normalität und Verlauf möglichst genau dokumentieren.'],
+        ['Beschwerden','Sind Hauptbeschwerde, Lokalisation und Verlauf klar erfasst?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Leitsymptom und zeitlichen Verlauf konkret dokumentieren.'],
+        ['Exposition','Wurden Verletzungen, Haut, Temperatur und Umgebung berücksichtigt?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Bei Trauma, Hitze, Kälte oder Exposition gezielt nachfassen.'],
+        ['Vitalwerte','Sind die relevanten Vitalparameter erhoben und bewertet?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Zeitpunkt der Erhebung und relevante Veränderungen dokumentieren.'],
+        ['Re-Evaluation','Wurde nach relevanter Veränderung erneut systematisch beurteilt?',[['Ja','normal'],['Noch nicht','warning'],['Nicht erforderlich','normal']],'Nach Veränderung oder Maßnahme erneut ABCDE-orientiert beurteilen.'],
+        ['Übergabe','Sind Zeitverlauf, Befunde, Veränderungen und offene Punkte dokumentiert?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Strukturiert und nachvollziehbar an das nächste Team übergeben.']
+      ],
+      plan:[
+        ['P1 · Sofort','Eigenschutz und unmittelbare Gefahren kontrollieren.'],
+        ['P1 · Sofort','Kritische Auffälligkeiten nach lokalem Notfall-/Reanimationsalgorithmus priorisieren.'],
+        ['P2 · Danach','Monitoring, vollständige Untersuchung und Re-Evaluation vervollständigen.'],
+        ['P3 · Transport','Ziel- und Transportentscheidung nach lokaler SOP bzw. ärztlicher Vorgabe.'],
+        ['P4 · Abschluss','Befunde, Verlauf, Zeiten und Übergabe dokumentieren.']
+      ],meds:[]
+    },
+    'Reanimation':{
+      desc:'Geführte Reanimationsabfrage für Sicherheit, Team, Ablauf, Verlauf und Übergabe.',
+      questions:[
+        ['Einsatzstelle','Ist der Zugang zur Person sicher möglich?',[['Ja','normal'],['Nein / Gefahr','critical'],['Unklar','warning']],'Eigenschutz und sichere Arbeitsumgebung vor weiterer Versorgung klären.'],
+        ['Bewusstsein','Ist die Person nicht bzw. nicht adäquat reagierend?',[['Ja','critical'],['Nein','normal'],['Unklar','warning']],'Bei fehlender Reaktion den lokalen Reanimationspfad priorisieren.'],
+        ['Atmung','Ist eine normale Atmung sicher vorhanden?',[['Ja','normal'],['Auffällig / unklar','warning'],['Nein','critical']],'Keine normale Atmung ist ein unmittelbarer Prioritätspunkt.'],
+        ['Alarmierung','Sind erforderliche Ressourcen nach lokalem Ablauf alarmiert?',[['Ja','normal'],['Teilweise','warning'],['Nein','critical']],'Ressourcen und weitere Unterstützung frühzeitig organisieren.'],
+        ['Team','Sind Rollen und Zuständigkeiten klar verteilt?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Klare Rollen reduzieren Verzögerungen und Kommunikationsfehler.'],
+        ['Defibrillation','Ist AED/Defibrillator verfügbar bzw. angefordert?',[['Ja','normal'],['Unterwegs','warning'],['Nein','critical']],'Gerät und lokalen Reanimationsalgorithmus priorisieren.'],
+        ['Atemweg / Beatmung','Ist eine lokale Strategie für Atemweg und Beatmung festgelegt?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Nur nach aktuellem lokalen Algorithmus und vorhandener Qualifikation handeln.'],
+        ['Reversible Ursachen','Werden reversible Ursachen systematisch nach lokalem Algorithmus berücksichtigt?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Sonderumstände und Verlauf fortlaufend berücksichtigen.'],
+        ['Zeitpunkte','Sind Beginn und relevante Zeitpunkte dokumentiert?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Zeitliche Nachvollziehbarkeit für Verlauf und Übergabe sichern.'],
+        ['Zustandsänderung','Gab es eine relevante Zustandsänderung oder Rückkehr eines Kreislaufs?',[['Nein','normal'],['Ja','warning'],['Unklar','warning']],'Bei Zustandsänderung sofort neu beurteilen und passenden lokalen Pfad wählen.'],
+        ['Post-Reanimation','Ist bei ROSC der lokale Post-Reanimationspfad vorbereitet?',[['Ja','normal'],['Teilweise','warning'],['Nicht zutreffend','normal']],'Post-Reanimationsversorgung und Zielpfad nach lokaler SOP.'],
+        ['Übergabe','Sind Reanimationsdauer, Verlauf und Maßnahmen nachvollziehbar dokumentiert?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Zeiten, Verlauf und relevante Maßnahmen strukturiert übergeben.']
+      ],
+      plan:[
+        ['P1 · Sofort','Sicherheit, Hilfe und lokalen Reanimationsalgorithmus priorisieren.'],
+        ['P1 · Sofort','Bei fehlender normaler Atmung den Reanimationsablauf ohne Verzögerung verfolgen.'],
+        ['P1 · Sofort','Defibrillation und Teamressourcen nach lokalem Algorithmus organisieren.'],
+        ['P2 · Laufend','Zeitpunkte, Zustandsänderungen und relevante Maßnahmen dokumentieren.'],
+        ['P3 · Nach ROSC','Post-Reanimationspfad und Zielklinik nach lokaler SOP vorbereiten.'],
+        ['P4 · Übergabe','Ausgangslage, Verlauf, Zeiten und Maßnahmen vollständig übergeben.']
+      ],meds:['Epinephrin Injector']
+    },
+    'Übergabe':{
+      desc:'Strukturierte Übergabe, damit Situation, Verlauf, Risiken und weiteres Vorgehen nicht verloren gehen.',
+      questions:[
+        ['Situation','Kann das aktuelle Hauptproblem in einem klaren Satz benannt werden?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Mit dem aktuell wichtigsten Problem beginnen.'],
+        ['Zeitverlauf','Sind Beginn, Verlauf und entscheidende Zeitpunkte bekannt?',[['Ja','normal'],['Teilweise','warning'],['Nein / unbekannt','warning']],'Beginn und letzte relevante Veränderung konkret nennen.'],
+        ['Anamnese','Sind relevante Vorerkrankungen und Dauermedikation erhoben?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Nur relevante Informationen priorisieren.'],
+        ['Allergien','Sind Allergien bzw. Unverträglichkeiten bekannt oder als unbekannt dokumentiert?',[['Ja','normal'],['Nein bekannt','normal'],['Unklar','warning']],'Unbekannte Allergien ausdrücklich benennen.'],
+        ['Befunde','Sind die wesentlichen Befunde und Vitalwerte nachvollziehbar dokumentiert?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Aktuellen Zustand mit relevanten Veränderungen nennen.'],
+        ['Verlauf','Sind relevante Veränderungen zeitlich nachvollziehbar festgehalten?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Was hat sich wann verändert?'],
+        ['Maßnahmen','Sind relevante Maßnahmen und Zeitpunkte dokumentiert?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Maßnahme und Reaktion gemeinsam nennen.'],
+        ['Reaktion','Ist die Reaktion auf relevante Maßnahmen beschrieben?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Reaktion und aktuellen Zustand gegenüberstellen.'],
+        ['Risiken','Sind aktuelle Risiken, Warnzeichen und offene Probleme benannt?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Offene Probleme nicht nur andeuten, sondern klar nennen.'],
+        ['Empfehlung','Ist das weitere Vorgehen eindeutig formuliert?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Nächsten Schritt nach lokalem Ablauf festhalten.'],
+        ['Rückfragen','Wurden offene Punkte geklärt und Rückfragen ermöglicht?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Rückfragen und Übergabebestätigung ermöglichen.'],
+        ['Dokumentation','Ist die Übergabe selbst und der aktuelle Zustand dokumentiert?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Übergabe und Zustand zeitnah dokumentieren.']
+      ],
+      plan:[
+        ['P1 · Vor Übergabe','Lebensbedrohliche Auffälligkeiten und unmittelbare Risiken zuerst nennen.'],
+        ['P2 · Kerninfos','Situation, Zeitverlauf, Hintergrund und wesentliche Befunde zusammenfassen.'],
+        ['P2 · Verlauf','Reaktionen und relevante Veränderungen nennen.'],
+        ['P3 · Weiteres Vorgehen','Offene Aufgaben und nächsten Schritt eindeutig benennen.'],
+        ['P4 · Abschluss','Rückfragen klären und Übergabe dokumentieren.']
+      ],meds:[]
+    },
+    'Trauma':{
+      desc:'Traumaabfrage von Einsatzstelle und Mechanismus bis Re-Evaluation und Übergabe.',
+      questions:[
+        ['Einsatzstelle','Ist die Unfall-/Gewaltstelle sicher und der Zugang kontrolliert?',[['Ja','normal'],['Teilweise','warning'],['Nein / Gefahr','critical']],'Gefahrenkontrolle vor weiterer Detailabfrage.'],
+        ['Mechanismus','Ist der Unfall- oder Ereignismechanismus nachvollziehbar?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Mechanismus und mögliche Verletzungsmuster zusammen betrachten.'],
+        ['Blutung','Besteht eine relevante äußere Blutung oder Verdacht auf relevanten Blutverlust?',[['Nein','normal'],['Ja','critical'],['Unklar','warning']],'Blutung aktiv suchen und lokalen Blutungsablauf beachten.'],
+        ['Atemweg / Atmung','Gibt es relevante Auffälligkeiten von Atemweg oder Atmung?',[['Nein','normal'],['Ja','warning'],['Unklar','warning']],'Bei akuter Bedrohung sofort lokalen Trauma-/Notfallalgorithmus priorisieren.'],
+        ['Kreislauf','Gibt es Hinweise auf Kreislaufinstabilität oder schlechte Perfusion?',[['Nein','normal'],['Ja','critical'],['Unklar','warning']],'Bei Instabilität Detailabfragen nachrangig.'],
+        ['Neurologie','Bestehen neue Bewusstseins- oder neurologische Auffälligkeiten?',[['Nein','normal'],['Ja','warning'],['Unklar','warning']],'Neurologischen Verlauf und Zeitpunkt dokumentieren.'],
+        ['Verletzungsmuster','Sind relevante Verletzungen systematisch erfasst?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Nach dem lebensbedrohlichen zuerst den vollständigen Körperkontext prüfen.'],
+        ['Begleitverletzungen','Wurde erneut nach übersehenen Begleitverletzungen gesucht?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Re-Evaluation verhindert Übersehen weiterer Verletzungen.'],
+        ['Wärmeerhalt','Ist der Wärmeerhalt berücksichtigt?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Wärmeverlust aktiv begrenzen und Verlauf dokumentieren.'],
+        ['Schmerz','Sind Schmerzstärke, Lokalisation und Verlauf erfasst?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Schmerzverlauf nach lokalen Standards dokumentieren.'],
+        ['Re-Evaluation','Wurde nach Maßnahmen und Veränderungen erneut beurteilt?',[['Ja','normal'],['Noch nicht','warning'],['Nicht erforderlich','normal']],'Nach jeder relevanten Veränderung erneut beurteilen.'],
+        ['Übergabe','Sind Mechanismus, Befunde, Verlauf und offene Risiken vollständig?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Traumamechanismus und relevante Befunde strukturiert übergeben.']
+      ],
+      plan:[
+        ['P1 · Sofort','Eigenschutz und Gefahrenkontrolle sicherstellen.'],
+        ['P1 · Sofort','Lebensbedrohliche Blutung sowie Atemwegs-/Atmungs-/Kreislaufprobleme nach lokalem Traumaalgorithmus priorisieren.'],
+        ['P2 · Danach','Verletzungsmuster und Begleitverletzungen vervollständigen.'],
+        ['P2 · Danach','Monitoring, Schmerzverlauf und Re-Evaluation fortführen.'],
+        ['P3 · Transport','Zielklinik und Transportstrategie nach lokalem Zuweisungspfad.'],
+        ['P4 · Übergabe','Mechanismus, Befunde, Veränderungen und offene Risiken übergeben.']
+      ],meds:['Tranexamsäure','Metamizol']
+    },
+    'Pädiatrie':{
+      desc:'Altersgerechte Abfrage für Verhalten, Atmung, Kreislauf, Fremdanamnese und Sicherheit.',
+      questions:[
+        ['Alter / Gewicht','Sind Alter und ein für den lokalen Ablauf geeignetes Gewicht bekannt?',[['Ja','normal'],['Ungefähr','warning'],['Nein','warning']],'Bei Unsicherheit lokale pädiatrische Hilfsmittel und Vorgaben nutzen.'],
+        ['Verhalten','Ist das Verhalten altersgerecht oder relevant verändert?',[['Unauffällig','normal'],['Verändert','warning'],['Unklar','warning']],'Veränderung gegenüber dem Ausgangszustand erfragen.'],
+        ['Bewusstsein','Ist die Reaktionslage altersgerecht?',[['Ja','normal'],['Eingeschränkt','warning'],['Nein','critical']],'Deutliche Vigilanzstörung priorisieren.'],
+        ['Atmung','Gibt es auffällige Atemarbeit oder relevante Atemprobleme?',[['Nein','normal'],['Ja','critical'],['Unklar','warning']],'Kinder können sich rasch verändern; Verlauf eng beobachten.'],
+        ['Kreislauf / Perfusion','Gibt es auffällige Perfusions- oder Kreislaufzeichen?',[['Nein','normal'],['Ja','critical'],['Unklar','warning']],'Altersabhängige Zeichen und Verlauf nach lokalem Standard bewerten.'],
+        ['Fremdanamnese','Liegen Angaben von Eltern, Bezugspersonen oder Zeugen vor?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Fremdanamnese besonders bei kleinen Kindern wichtig.'],
+        ['Vorerkrankungen','Sind relevante Vorerkrankungen und Dauermedikation bekannt?',[['Ja','normal'],['Nein','warning'],['Unklar','warning']],'Relevante Dauertherapie und bekannte Risiken dokumentieren.'],
+        ['Trinken / Essen','Besteht eine relevante Veränderung von Trinken, Essen oder Ausscheidungen?',[['Nein','normal'],['Ja','warning'],['Unklar','warning']],'Verlauf und mögliche Dehydratationszeichen berücksichtigen.'],
+        ['Fieber / Infekt','Gibt es Hinweise auf Infekt mit verändertem Allgemeinzustand?',[['Nein','normal'],['Ja','warning'],['Unklar','warning']],'Allgemeinzustand und Dynamik beachten.'],
+        ['Sicherheit / Umfeld','Gibt es relevante Sicherheits-, Betreuungs- oder Kinderschutzaspekte?',[['Nein','normal'],['Ja','warning'],['Unklar','warning']],'Sachlich dokumentieren und lokale Vorgaben beachten.'],
+        ['Re-Evaluation','Wurde die Entwicklung nach relevanten Veränderungen erneut beurteilt?',[['Ja','normal'],['Noch nicht','warning'],['Nicht erforderlich','normal']],'Kinder engmaschig re-evaluieren, wenn der Zustand schwankt.'],
+        ['Übergabe','Sind Alter, Gewicht, Verlauf und Befunde klar dokumentiert?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Übergabe alters- und entwicklungsbezogen strukturieren.']
+      ],
+      plan:[
+        ['P1 · Sofort','Bei deutlicher Verschlechterung Atemweg, Atmung und Kreislauf nach lokalem Algorithmus priorisieren.'],
+        ['P1 · Sofort','Alters-/gewichtsbezogene lokale Abläufe und passende Ressourcen nutzen.'],
+        ['P2 · Danach','Fremdanamnese, Verlauf und Vorerkrankungen vervollständigen.'],
+        ['P2 · Danach','Monitoring und Re-Evaluation altersgerecht fortführen.'],
+        ['P3 · Transport','Geeigneten pädiatrischen Zielpfad nach lokalem Vorgehen klären.'],
+        ['P4 · Übergabe','Alter, Gewicht, Verlauf, Befunde und Beobachtungen vollständig übergeben.']
+      ],meds:[]
+    },
+    'Geburt':{
+      desc:'Getrennte strukturierte Abfrage für Mutter und Kind.',
+      questions:[
+        ['Schwangerschaftswoche','Ist die Schwangerschaftswoche bekannt oder plausibel eingegrenzt?',[['Ja','normal'],['Ungefähr','warning'],['Unbekannt','warning']],'Zeitpunkt und relevante Schwangerschaftsdaten dokumentieren.'],
+        ['Geburtsphase','Ist der aktuelle Geburtsfortschritt nachvollziehbar?',[['Ja','normal'],['Teilweise','warning'],['Unklar','warning']],'Geburtsphase und Verlauf gemeinsam betrachten.'],
+        ['Mutter – Zustand','Ist die Mutter hinsichtlich Bewusstsein, Atmung und Kreislauf stabil?',[['Ja','normal'],['Auffällig','warning'],['Instabil / unklar','critical']],'Mutter und Kind immer getrennt beurteilen.'],
+        ['Blutung','Besteht eine relevante Blutung oder entsprechender Verdacht?',[['Nein','normal'],['Ja','critical'],['Unklar','warning']],'Blutung sofort nach lokalem geburtshilflichem Ablauf priorisieren.'],
+        ['Wehen / Verlauf','Sind Beginn, Häufigkeit und Verlauf der Beschwerden nachvollziehbar?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Verlauf und relevante Zeitpunkte dokumentieren.'],
+        ['Kind – Zustand','Ist der Zustand des Kindes nach lokalem Ablauf erfasst?',[['Ja','normal'],['Teilweise','warning'],['Noch nicht','warning']],'Bei Geburt Mutter und Kind getrennt weiterführen.'],
+        ['Geburtszeitpunkt','Ist der tatsächliche Geburtszeitpunkt dokumentiert?',[['Ja','normal'],['Ungefähr','warning'],['Nein','warning']],'Zeitpunkt möglichst exakt festhalten.'],
+        ['Wärmeerhalt','Ist der Wärmeerhalt von Mutter und Kind berücksichtigt?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Wärmeverlust aktiv vermeiden.'],
+        ['Komplikationen','Sind relevante Komplikationen oder Risiken bekannt?',[['Nein','normal'],['Ja','warning'],['Unklar','warning']],'Komplikationen konkret benennen und lokalen Ablauf nutzen.'],
+        ['Ressourcen','Sind passende geburtshilfliche/neonatale Ressourcen organisiert?',[['Ja','normal'],['Teilweise','warning'],['Nein / unklar','warning']],'Ressourcen frühzeitig nach lokalem Ablauf aktivieren.'],
+        ['Re-Evaluation','Werden Mutter und Kind getrennt wiederholt beurteilt?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Bei Veränderung jeweils eigenen lokalen Pfad wählen.'],
+        ['Übergabe','Sind Schwangerschaft, Verlauf, Zeiten und Zustand von Mutter und Kind dokumentiert?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Getrennte Statusangaben an das aufnehmende Team übergeben.']
+      ],
+      plan:[
+        ['P1 · Sofort','Mutter und Kind getrennt beurteilen und kritische Probleme priorisieren.'],
+        ['P1 · Sofort','Relevante Blutung und akute Komplikationen nach lokaler SOP priorisieren.'],
+        ['P2 · Danach','Geburtsphase, Zeiten und relevante Anamnese vervollständigen.'],
+        ['P2 · Danach','Wärmeerhalt und Re-Evaluation von Mutter und Kind fortführen.'],
+        ['P3 · Transport','Geburtshilflichen/neonatalen Zielpfad nach lokalem Standard klären.'],
+        ['P4 · Übergabe','Mutter und Kind getrennt, mit Zeiten und Verlauf, übergeben.']
+      ],meds:[]
+    },
+    'Intoxikation':{
+      desc:'Intoxikationsabfrage für Eigenschutz, Substanz, Verlauf, Vitalfunktionen und Übergabe.',
+      questions:[
+        ['Eigenschutz','Ist die Expositionsgefahr für Team und Umgebung beherrscht?',[['Ja','normal'],['Nein / Gefahr','critical'],['Unklar','warning']],'Eigenschutz und weitere Exposition zuerst klären.'],
+        ['Substanz','Ist die mögliche Substanz oder das Produkt bekannt?',[['Ja','normal'],['Vermutet','warning'],['Unbekannt','warning']],'Verpackung und Produktinformationen sichern.'],
+        ['Menge','Ist eine ungefähre Menge bekannt?',[['Ja','normal'],['Ungefähr','warning'],['Nein','warning']],'Schätzung ausdrücklich als solche kennzeichnen.'],
+        ['Zeitpunkt','Ist der mögliche Expositionszeitpunkt bekannt?',[['Ja','normal'],['Ungefähr','warning'],['Nein','warning']],'Zeitpunkt bzw. letzte sichere Beobachtung dokumentieren.'],
+        ['Aufnahmeweg','Ist der Aufnahme-/Expositionsweg bekannt?',[['Ja','normal'],['Unklar','warning'],['Nein','warning']],'Aufnahmeweg kann für weitere lokale Schritte relevant sein.'],
+        ['Begleitstoffe','Sind weitere Medikamente, Drogen oder Substanzen möglich?',[['Nein','normal'],['Ja','warning'],['Unklar','warning']],'Mehrfachintoxikation mitdenken und dokumentieren.'],
+        ['Bewusstsein','Ist die Reaktionslage verändert?',[['Nein','normal'],['Ja','critical'],['Unklar','warning']],'Bewusstseinsstörung priorisieren.'],
+        ['Atmung','Ist die Atmung auffällig?',[['Nein','normal'],['Ja','critical'],['Unklar','warning']],'Atemweg und Atmung haben Vorrang.'],
+        ['Kreislauf','Ist der Kreislauf auffällig oder instabil?',[['Nein','normal'],['Ja','critical'],['Unklar','warning']],'Kreislaufinstabilität sofort priorisieren.'],
+        ['Verpackung','Sind Verpackung, Präparatname oder weitere Hinweise verfügbar?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Informationen für lokale Giftinformation/SOP sichern.'],
+        ['Fremdanamnese','Sind Zeugen oder andere Quellen für die Anamnese vorhanden?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Fremdanamnese mit Quelle dokumentieren.'],
+        ['Übergabe / Giftinfo','Sind relevante Informationen für lokalen Giftinformations-/SOP-Weg vorbereitet?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Substanz, Menge, Zeitpunkt, Weg und Verlauf strukturiert weitergeben.']
+      ],
+      plan:[
+        ['P1 · Sofort','Eigenschutz und Expositionskontrolle sicherstellen.'],
+        ['P1 · Sofort','Bewusstseins-, Atemwegs-, Atmungs- und Kreislaufprobleme priorisieren.'],
+        ['P2 · Danach','Substanz, Menge, Zeitpunkt, Aufnahmeweg und Begleitstoffe erheben.'],
+        ['P2 · Danach','Verpackungen und sonstige Hinweise sichern.'],
+        ['P3 · Fachinformation','Lokalen Giftinformations-/SOP-Weg und ärztliche Vorgaben nutzen.'],
+        ['P4 · Übergabe','Toxikologieinformationen, Verlauf und Zeitpunkte vollständig übergeben.']
+      ],meds:['Naloxon']
+    },
+    'Psychiatrie':{
+      desc:'Psychiatrische Abfrage mit Eigenschutz, Kontakt, Orientierung und Eigen-/Fremdgefährdung.',
+      questions:[
+        ['Eigenschutz','Ist das Umfeld für Patient und Team ausreichend sicher?',[['Ja','normal'],['Nein / Gefahr','critical'],['Unklar','warning']],'Eigenschutz und Teampositionierung zuerst.'],
+        ['Kontakt','Ist ein ruhiger und nachvollziehbarer Kontakt möglich?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Kommunikation ruhig, klar und nachvollziehbar halten.'],
+        ['Bewusstsein','Ist die Reaktionslage unauffällig?',[['Ja','normal'],['Eingeschränkt','warning'],['Nein','critical']],'Akute Bewusstseinsänderung kann eine somatische Ursache haben.'],
+        ['Orientierung','Ist die Person ausreichend zu Person, Ort und Situation orientiert?',[['Ja','normal'],['Teilweise','warning'],['Nein / unklar','warning']],'Veränderungen sachlich dokumentieren.'],
+        ['Eigengefährdung','Gibt es Hinweise auf aktuelle Selbstgefährdung?',[['Nein','normal'],['Ja','critical'],['Unklar','warning']],'Bei konkreter Gefahr lokalen Schutz-/Alarmierungsweg aktivieren.'],
+        ['Fremdgefährdung','Gibt es Hinweise auf aktuelle Fremdgefährdung?',[['Nein','normal'],['Ja','critical'],['Unklar','warning']],'Sicherheitslage und Unterstützung nach lokalem Ablauf organisieren.'],
+        ['Agitation','Besteht deutliche Unruhe oder schwer steuerbares Verhalten?',[['Nein','normal'],['Ja','warning'],['Unklar','warning']],'Deeskalation und Eigenschutz priorisieren.'],
+        ['Substanzen','Sind Alkohol, Drogen oder andere Substanzen möglich?',[['Nein','normal'],['Ja','warning'],['Unklar','warning']],'Substanzbedingte Ursachen mitdenken.'],
+        ['Vorerkrankungen','Sind relevante psychiatrische/somatische Vorerkrankungen und Medikamente bekannt?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Fremdanamnese einbeziehen, wenn möglich.'],
+        ['Körperliche Ursache','Gibt es Hinweise auf eine somatische oder neurologische Ursache?',[['Nein','normal'],['Ja','warning'],['Unklar','warning']],'Psychische Symptome nicht vorschnell rein psychiatrisch einordnen.'],
+        ['Re-Evaluation','Wurde nach Beruhigung oder Veränderung erneut beurteilt?',[['Ja','normal'],['Noch nicht','warning'],['Nicht erforderlich','normal']],'Bei Zustandsänderung erneut systematisch beurteilen.'],
+        ['Dokumentation','Sind Beobachtungen, Aussagen und Risiken sachlich dokumentiert?',[['Ja','normal'],['Teilweise','warning'],['Nein','warning']],'Aussagen und Beobachtungen getrennt und nachvollziehbar dokumentieren.']
+      ],
+      plan:[
+        ['P1 · Sofort','Eigenschutz, Teampositionierung und sichere Umgebung priorisieren.'],
+        ['P1 · Sofort','Eigen-/Fremdgefährdung nach lokalem Schutz- und Alarmierungsweg behandeln.'],
+        ['P2 · Danach','Kontakt, Orientierung, somatische Ursachen und mögliche Substanzen strukturieren.'],
+        ['P2 · Danach','Re-Evaluation nach relevanten Veränderungen fortführen.'],
+        ['P3 · Weiteres Vorgehen','Psychiatrischen/ärztlichen Zielpfad und notwendige Unterstützung klären.'],
+        ['P4 · Übergabe','Aussagen, Verhalten, Risiken und Verlauf sachlich übergeben.']
+      ],meds:['Midazolam','Lorazepam']
+    }
+  };
+
+  window.RD_CHECKLISTS=C;
+  let activeId=null;
+  let activeIndex=0;
+  let showResult=false;
+
+  const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const root=()=>document.getElementById('app');
+  const key=id=>'rd-checklist-stable-'+id;
+  function load(id){
+    const total=C[id].questions.length;
+    try{
+      const x=JSON.parse(localStorage.getItem(key(id))||'{}');
+      if(x&&Array.isArray(x.answers)){
+        const a=Array(total).fill(null);
+        x.answers.slice(0,total).forEach((v,i)=>{if(Number.isInteger(v)&&v>=0)a[i]=v});
+        return a;
+      }
+    }catch(e){}
+    return Array(total).fill(null);
   }
-};
+  function save(id,a){try{localStorage.setItem(key(id),JSON.stringify({answers:a}))}catch(e){}}
+  function answered(a){return a.filter(v=>v!==null).length}
+  function level(q,a){return a==null?'open':q.answers[a][1]}
+  function label(q,a){return a==null?'Offen':q.answers[a][0]}
+  function crumb(text){const b=document.getElementById('breadcrumbCurrent');if(b)b.textContent=text}
 
-let checklistOpen=null,checklistAnswers={};
-const answerKey=id=>'rd-assessment-'+id;
-function loadAnswers(id){
-  if(checklistAnswers[id])return checklistAnswers[id];
-  const q=RD_CHECKLISTS[id]?.questions||[];let state=Array(q.length).fill(null);
-  try{const raw=localStorage.getItem(answerKey(id));if(raw){const parsed=JSON.parse(raw);if(Array.isArray(parsed)&&parsed.length===q.length)state=parsed;}}catch(e){}
-  checklistAnswers[id]=state;return state;
-}
-function saveAnswers(id,state){checklistAnswers[id]=state;try{localStorage.setItem(answerKey(id),JSON.stringify(state))}catch(e){}}
-function answeredCount(state){return state.filter(v=>v!==null).length}
-function flaggedCount(id,state){const q=RD_CHECKLISTS[id]?.questions||[];return state.reduce((n,v,i)=>{if(v===null)return n;const label=q[i][2][v]||'';return n+(/nein|auffällig|instabil|ja|eingeschränkt|verändert|Gefahr|unklar|noch nicht|nicht/i.test(label)&&!(['Eigenschutz','Situation','Kontakt'].includes(q[i][0])&&label==='ja')?1:0)},0)}
-function renderChecklistList(){
-  const entries=Object.entries(RD_CHECKLISTS);
-  app.innerHTML=`<div class="view-title"><div><span class="eyebrow">CHECKLISTEN / ABFRAGE</span><h1>Geführte Einsatzabfragen</h1><p>Öffnen, Frage für Frage beantworten und am Ende einen priorisierten Maßnahmenplan mit Übergabe-/Dokumentationspunkten erhalten. Für Ausbildung/RP; lokale SOPs haben Vorrang.</p></div></div><div class="category-grid checklist-grid">${entries.map(([id,c])=>{const st=loadAnswers(id),done=answeredCount(st),pct=Math.round(done/st.length*100);return `<button class="panel checklist-card" data-checklist="${esc(id)}"><div class="panel-title"><span class="checklist-icon tone-${['red','blue','green','amber'][done%4]}">✓</span>${esc(id)}</div><p class="muted-text">${esc(c.desc)}</p><div class="checklist-progress"><span><b>${done}</b>/${st.length} Fragen</span><b>${pct}%</b></div><div class="progress-track"><i style="width:${pct}%"></i></div><span class="checklist-open">Abfrage starten / fortsetzen →</span></button>`}).join('')}</div>`;
-}
-function renderChecklistDetail(id){
-  const c=RD_CHECKLISTS[id],state=loadAnswers(id),idx=state.findIndex(v=>v===null),allDone=idx===-1;
-  if(allDone)return renderChecklistResult(id);
-  const q=c.questions[idx],pct=Math.round(idx/state.length*100);
-  app.innerHTML=`<div class="view-title"><div><span class="eyebrow red">ABFRAGE ${idx+1} / ${state.length}</span><h1>${esc(id)}</h1><p>${esc(c.desc)}</p></div><button class="back" data-checklist-back>← Übersicht</button></div><div class="triage"><div class="stepper"><div class="panel-title">Fortschritt</div>${c.questions.map((x,i)=>`<div class="step ${i===idx?'active':''} ${state[i]!==null?'answered':''}"><b>${i+1}</b> · ${esc(x[0])}${state[i]!==null?' ✓':''}</div>`).join('')}<div class="notice">Antworten werden lokal im Browser gespeichert und können später fortgesetzt werden.</div></div><div class="question-card"><span class="eyebrow">FRAGE ${idx+1}</span><h2>${esc(q[0])}</h2><div class="sub">Wähle die Antwort, die die aktuelle Lage am besten beschreibt.</div><div class="answer-grid">${q[2].map((a,i)=>`<button class="answer" data-check-answer="${i}"><strong>${esc(a)}</strong><small>Auswahl speichern und zur nächsten Frage</small></button>`).join('')}</div><div class="notice" style="margin-top:20px"><strong>Hinweis</strong><br>Bei einer kritischen Auffälligkeit nicht auf die Checkliste warten: lokale Notfall-/Reanimationsabläufe und fachliche Entscheidungswege haben Vorrang.</div><div class="completion-actions"><button class="secondary" data-checklist-back>← Übersicht</button><button class="secondary" data-check-reset>↻ Abfrage zurücksetzen</button></div></div></div>`;
-}
-function renderChecklistResult(id){
-  const c=RD_CHECKLISTS[id],state=loadAnswers(id),flags=flaggedCount(id,state),answers=c.questions.map((q,i)=>({q:q[0],a:q[2][state[i]]||'—'}));
-  app.innerHTML=`<div class="completion-hero"><span class="eyebrow red">ABFRAGE ABGESCHLOSSEN</span><h1>${esc(id)} – Was jetzt?</h1><p>Alle Fragen wurden beantwortet. Die folgende Reihenfolge ist eine Ausbildungs-/RP-Orientierung und ersetzt keine lokalen SOPs, ärztlichen Anordnungen oder aktuelle Leitlinien.</p><div class="completion-actions"><button class="primary" data-check-restart>↻ Erneut abfragen</button><button class="secondary" data-checklist-back>← Übersicht</button></div></div><div class="two-col section"><div class="panel"><div class="panel-title">Auswertung</div><div class="notice result"><strong>${answers.length} Fragen beantwortet</strong><br>${flags} Antwort(en) wurden als prüf-/prioritätsrelevant markiert. Das ist keine Diagnose oder automatische Triage.</div>${answers.map((x,i)=>`<div class="history-row"><span class="history-number">${i+1}</span><div><strong>${esc(x.q)}</strong><small>${esc(x.a)}</small></div></div>`).join('')}</div><div class="panel"><div class="panel-title">Maßnahmenplan – Reihenfolge</div>${c.priorities.map((x,i)=>`<div class="next-step"><span>${i+1}</span><div><strong>${esc(x[0])}</strong><small>${esc(x[1])}</small></div></div>`).join('')}</div></div>${flags?`<div class="panel section priority-alert"><div class="panel-title">⚠ Priorität prüfen</div><div class="notice"><strong>Mindestens eine Antwort ist auffällig oder unklar.</strong><br>Die konkreten Befunde müssen jetzt aktiv mit dem gültigen lokalen Algorithmus/SOP abgeglichen werden. Die Checkliste bewertet nicht selbst die medizinische Dringlichkeit.</div></div>`:''}<div class="panel section"><div class="panel-title">Medikamente / Register</div><p class="muted-text">Nur als Verweis auf das vorhandene Medikamentenregister. Auswahl, Indikation, Kontraindikationen, Applikation und Dosierung müssen nach eurer gültigen lokalen SOP bzw. ärztlichen Anordnung geprüft werden.</p><div class="med-reference-grid">${c.meds?.length?c.meds.map(name=>`<button class="quick-item" data-medgo="${esc(name)}"><span><strong>${esc(name)}</strong><small>Im Medikamentenregister prüfen</small></span><span class="badge">Öffnen</span></button>`).join(''):`<div class="notice">Für dieses Thema werden hier bewusst keine konkreten Medikamente vorgeschlagen. Nutze das Medikamentenregister nur nach lokalem Schema.</div>`}</div></div><div class="panel section"><div class="panel-title">Abschluss / Dokumentation / Übergabe</div><div class="handover-grid"><div><span class="mini-label">DOKUMENTIEREN</span><p>Fragen, relevante Antworten, Zeitpunkte, Befunde, Veränderungen und bereits erfolgte Maßnahmen festhalten.</p></div><div><span class="mini-label">RE-EVALUATION</span><p>Bei jeder relevanten Veränderung erneut systematisch beurteilen und den lokalen Algorithmus anwenden.</p></div><div><span class="mini-label">ÜBERGABE</span><p>Situation, Hintergrund, Einschätzung, Risiken, Verlauf und weiteres Vorgehen strukturiert übergeben.</p></div></div></div>`;
-}
-renderChecklisten=function(){if(checklistOpen&&RD_CHECKLISTS[checklistOpen])renderChecklistDetail(checklistOpen);else renderChecklistList()};
+  function list(){
+    activeId=null;showResult=false;activeIndex=0;crumb('Checklisten');
+    const r=root();if(!r)return;
+    r.innerHTML='<div class="view-title"><div><span class="eyebrow red">CHECKLISTEN</span><h1>Geführte Einsatzabfragen</h1><p>Frage für Frage durchgehen, kritische Antworten erkennen und am Ende den priorisierten Abschluss anzeigen.</p></div></div><div class="category-grid checklist-enhanced-grid">'+Object.keys(C).map(id=>{
+      const c=C[id],a=load(id),done=answered(a),pct=c.questions.length?Math.round(done/c.questions.length*100):0;
+      return '<button type="button" class="panel checklist-card clx-card" data-cl-open="'+esc(id)+'"><div class="clx-card-head"><span class="clx-icon">✓</span><h3>'+esc(id)+'</h3></div><p>'+esc(c.desc)+'</p><div class="clx-progress"><span>'+done+'/'+c.questions.length+' Fragen</span><b>'+pct+'%</b></div><div class="clx-track"><i style="width:'+pct+'%"></i></div><span class="clx-open">Abfrage starten / fortsetzen →</span></button>';
+    }).join('')+'</div>';
+  }
 
-document.addEventListener('click',e=>{
-  const open=e.target.closest('[data-checklist]');
-  if(open){checklistOpen=open.dataset.checklist;renderChecklisten();return}
-  const back=e.target.closest('[data-checklist-back]');
-  if(back){checklistOpen=null;renderChecklisten();return}
-  const reset=e.target.closest('[data-check-reset]');
-  if(reset&&checklistOpen){const empty=Array(RD_CHECKLISTS[checklistOpen].questions.length).fill(null);saveAnswers(checklistOpen,empty);renderChecklisten();return}
-  const restart=e.target.closest('[data-check-restart]');
-  if(restart&&checklistOpen){const empty=Array(RD_CHECKLISTS[checklistOpen].questions.length).fill(null);saveAnswers(checklistOpen,empty);renderChecklisten();return}
-  const ans=e.target.closest('[data-check-answer]');
-  if(ans&&checklistOpen){const state=loadAnswers(checklistOpen),idx=state.findIndex(v=>v===null);if(idx>=0){state[idx]=Number(ans.dataset.checkAnswer);saveAnswers(checklistOpen,state);renderChecklisten();}return}
-  const med=e.target.closest('[data-medgo]');
-  if(med){const name=med.dataset.medgo;checklistOpen=null;currentView='medikamente';selectedGuide=null;render();setTimeout(()=>{const input=document.getElementById('medSearch');if(input){input.value=name;filterMeds('search',name);input.scrollIntoView({behavior:'smooth',block:'center'})}},0);return}
-});
-renderChecklisten();
+  function detail(){
+    const c=C[activeId],a=load(activeId),total=c.questions.length;
+    if(answered(a)===total){showResult=true;result();return}
+    if(a[activeIndex]!==null){const n=a.findIndex(v=>v===null);activeIndex=n<0?total-1:n}
+    const q=c.questions[activeIndex];crumb(activeId+' / Abfrage '+(activeIndex+1));
+    const selected=a[activeIndex];
+    const r=root();if(!r)return;
+    const steps=c.questions.map((x,i)=>'<button type="button" class="clx-step '+(i===activeIndex?'active ':'')+(a[i]!==null?level(x,a[i]):'')+'" data-cl-jump="'+i+'"><span>'+(i+1)+'</span><strong>'+esc(x.title)+'</strong><small>'+(a[i]===null?'offen':esc(label(x,a[i])))+'</small></button>').join('');
+    const answers=q.answers.map((x,i)=>'<button type="button" class="clx-answer '+(selected===i?'selected ':'')+x[1]+'" data-cl-answer="'+i+'"><strong>'+esc(x[0])+'</strong><small>'+(x[1]==='critical'?'kritisch – sofort priorisieren':x[1]==='warning'?'auffällig / unklar – weiter prüfen':'unauffällig / planmäßig')+'</small></button>').join('');
+    const hint=(selected===null?'<span>💡 Wähle die Antwort, die die aktuelle Lage am besten beschreibt.</span>':(level(q,selected)==='critical'?'<span>🚨 <b>Kritische Antwort:</b> Diesen Befund nicht durch weitere Detailfragen verzögern. Lokalen Notfall-/SOP-Pfad prüfen.</span>':level(q,selected)==='warning'?'<span>⚠ <b>Auffälliger/unklarer Befund:</b> Kontext und Verlauf aktiv weiter prüfen.</span>':'<span>✓ Befund dokumentiert. Im Verlauf weiter beobachten und bei Veränderung re-evaluieren.</span>'));
+    const done=answered(a),pct=Math.round(done/total*100);
+    r.innerHTML='<div class="view-title"><div><span class="eyebrow red">CHECKLISTE / '+(activeIndex+1)+' VON '+total+'</span><h1>'+esc(activeId)+'</h1><p>'+esc(c.desc)+'</p></div><button type="button" class="back" data-cl-back>← Übersicht</button></div><div class="clx-layout"><aside class="clx-sidebar clx-panel"><div class="clx-panel-title">Fragenübersicht</div><div class="clx-steps">'+steps+'</div><div class="clx-mini"><span>Fortschritt</span><b>'+done+'/'+total+' · '+pct+'%</b><div class="clx-track"><i style="width:'+pct+'%"></i></div></div></aside><div class="clx-main"><section class="clx-panel clx-question '+(selected!==null&&level(q,selected)==='critical'?'is-critical':selected!==null&&level(q,selected)==='warning'?'is-warning':'')+'"><div class="clx-question-top"><span class="clx-number">FRAGE '+(activeIndex+1)+'</span><span class="clx-status '+(selected===null?'normal':level(q,selected))+'">'+(selected===null?'OFFEN':level(q,selected)==='critical'?'KRITISCH':level(q,selected)==='warning'?'ACHTUNG':'OK')+'</span></div><h2>'+esc(q.title)+'</h2><p class="clx-qtext">'+esc(q.text)+'</p><div class="clx-hint">'+hint+'</div><div class="clx-answers">'+answers+'</div><div class="clx-actions"><button type="button" class="secondary" data-cl-prev '+(activeIndex===0?'disabled':'')+'>← Zurück</button><button type="button" class="primary" data-cl-next '+(selected===null?'disabled':'')+'>'+ (activeIndex===total-1?'Auswertung anzeigen':'Nächste Frage →')+'</button></div></section>'+medBlock(c.meds)+'</div></div>';
+  }
+
+  function result(){
+    const c=C[activeId],a=load(activeId),rows=c.questions.map((q,i)=>({q:q,a:a[i]}));
+    const critical=rows.filter(x=>x.a!==null&&level(x.q,x.a)==='critical');
+    const warning=rows.filter(x=>x.a!==null&&level(x.q,x.a)==='warning');
+    crumb(activeId+' / Auswertung');const r=root();if(!r)return;
+    r.innerHTML='<div class="view-title"><div><span class="eyebrow red">ABFRAGE ABGESCHLOSSEN</span><h1>'+esc(activeId)+' – Was jetzt?</h1><p>Priorisierte Ausbildungs-/RP-Orientierung. Lokale SOPs, Algorithmen und fachliche Anordnungen haben Vorrang.</p></div><button type="button" class="back" data-cl-back>← Übersicht</button></div><div class="clx-result-grid"><section class="clx-panel '+(critical.length?'is-critical':'')+'"><div class="clx-panel-title">🚨 P1 · Sofort prüfen</div>'+ (critical.length?critical.map(x=>'<div class="clx-result-row critical"><span>!</span><div><strong>'+esc(x.q.title)+'</strong><small>Antwort: '+esc(label(x.q,x.a))+' · lokalen Notfall-/SOP-Pfad prüfen</small></div></div>').join(''):'<div class="clx-ok">Keine kritisch markierte Antwort.</div>')+'</section><section class="clx-panel"><div class="clx-panel-title">🟠 P2 · Auffällig / offen</div>'+ (warning.length?warning.map(x=>'<div class="clx-result-row warning"><span>!</span><div><strong>'+esc(x.q.title)+'</strong><small>'+esc(label(x.q,x.a))+' · Kontext und Verlauf prüfen</small></div></div>').join(''):'<div class="clx-ok">Keine zusätzlichen Warnpunkte.</div>')+'</section><section class="clx-panel"><div class="clx-panel-title">✅ P3/P4 · Maßnahmen und Abschluss</div>'+c.plan.map((p,i)=>'<div class="clx-result-row"><span>'+(i+1)+'</span><div><strong>'+esc(p[0])+'</strong><small>'+esc(p[1])+'</small></div></div>').join('')+'</section></div><section class="clx-panel clx-full"><div class="clx-panel-title">📋 Fragenprotokoll</div><div class="clx-result-grid inner">'+rows.map((x,i)=>'<button type="button" class="clx-log '+(x.a===null?'warning':level(x.q,x.a))+'" data-cl-jump="'+i+'"><span>'+(i+1)+'</span><div><strong>'+esc(x.q.title)+'</strong><small>'+esc(label(x.q,x.a))+'</small></div></button>').join('')+'</div></section>'+medBlock(c.meds)+'<div class="clx-actions"><button type="button" class="secondary" data-cl-reset>↻ Abfrage zurücksetzen</button><button type="button" class="primary" data-cl-back>← Zur Checkliste</button></div>';
+  }
+
+  function medBlock(names){
+    if(!names||!names.length)return '';
+    return '<section class="clx-panel clx-meds"><div class="clx-panel-title">💊 Medikamentenbezug</div><p>Nur Registerverweis für Ausbildung/RP. Keine Dosierung oder eigenständige Therapieanweisung.</p><div class="clx-med-grid">'+names.map(n=>'<button type="button" class="clx-med" data-cl-med="'+esc(n)+'"><strong>'+esc(n)+'</strong><small>Im Medikamentenregister prüfen</small></button>').join('')+'</div></section>';
+  }
+
+  function handle(e){
+    const t=e.target&&e.target.closest?e.target.closest('[data-cl-open],[data-cl-back],[data-cl-jump],[data-cl-answer],[data-cl-prev],[data-cl-next],[data-cl-reset],[data-cl-med]'):null;
+    if(!t)return;
+    e.preventDefault();
+    if(t.hasAttribute('data-cl-open')){activeId=t.getAttribute('data-cl-open');activeIndex=0;showResult=false;detail();return}
+    if(t.hasAttribute('data-cl-back')){if(showResult||activeId){activeId=null;activeIndex=0;showResult=false;list()}else{list()}return}
+    if(t.hasAttribute('data-cl-jump')){activeIndex=Math.max(0,Math.min(Number(t.getAttribute('data-cl-jump'))||0,C[activeId].questions.length-1));showResult=false;detail();return}
+    if(t.hasAttribute('data-cl-answer')){const a=load(activeId);a[activeIndex]=Number(t.getAttribute('data-cl-answer'));save(activeId,a);detail();return}
+    if(t.hasAttribute('data-cl-prev')){activeIndex=Math.max(0,activeIndex-1);detail();return}
+    if(t.hasAttribute('data-cl-next')){if(load(activeId)[activeIndex]===null)return;if(activeIndex>=C[activeId].questions.length-1){showResult=true;result()}else{activeIndex++;detail()}return}
+    if(t.hasAttribute('data-cl-reset')){const a=Array(C[activeId].questions.length).fill(null);save(activeId,a);activeIndex=0;showResult=false;detail();return}
+    if(t.hasAttribute('data-cl-med')){const n=t.getAttribute('data-cl-med');window.__checklistReturnId=activeId;try{window.currentView='medikamente';activeId=null;showResult=false;if(typeof window.render==='function')window.render();setTimeout(function(){const input=document.getElementById('medSearch');if(input){input.value=n;input.dispatchEvent(new Event('input',{bubbles:true}))}},0)}catch(err){}return}
+  }
+
+  function bind(){
+    const r=root();if(!r||r.__stableChecklistBound)return;
+    r.__stableChecklistBound=true;r.addEventListener('click',handle,false);
+  }
+
+  window.renderChecklisten=function(){bind();if(activeId&&C[activeId]){showResult?result():detail()}else list()};
+  bind();
+})();
