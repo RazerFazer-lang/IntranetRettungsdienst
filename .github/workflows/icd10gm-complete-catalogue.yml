@@ -83,3 +83,5 @@ jobs:
             git commit -m 'Add complete ICD-10-GM 2026 catalogue'
             git push origin main
           fi
+
+# Trigger a fresh authoritative ICD-10-GM build after the previous workflow attempts.
