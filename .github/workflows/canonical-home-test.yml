@@ -7,6 +7,10 @@ permissions:
   contents: read
 jobs:
   canonical-home:
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -15,7 +19,9 @@ jobs:
           node-version: 22
       - name: Install Playwright
         run: npm install --no-save playwright@1.55.0
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Install browser
+        run: npx playwright install --with-deps ${{ matrix.browser }}
       - name: Run canonical home regression
+        env:
+          BROWSER: ${{ matrix.browser }}
         run: node tests/canonical-home-regression.js
