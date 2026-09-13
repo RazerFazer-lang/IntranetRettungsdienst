@@ -13,51 +13,34 @@
     <aside class="sidebar" id="sidebar">
       <div class="brand">
         <div class="brand-mark">✚</div>
-        <div>
-          <strong>RD INTRANET</strong>
-          <span>Digitale Einsatzhilfe</span>
-        </div>
+        <div><strong>RD INTRANET</strong><small>Digitale Einsatzhilfe</small></div>
       </div>
-
       <nav class="nav" aria-label="Hauptnavigation">
         <button class="nav-item active" data-view="dashboard"><span>⌂</span> Dashboard</button>
         <button class="nav-item" data-view="abfrage"><span>☷</span> Abfragehilfe</button>
         <button class="nav-item" data-view="notfallbilder"><span>✚</span> Notfallbilder</button>
         <button class="nav-item" data-view="checklisten"><span>✓</span> Checklisten</button>
+        <button class="nav-item" data-view="rechner"><span>▣</span> Rechner</button>
         <button class="nav-item" data-view="wissen"><span>▤</span> Wissen</button>
       </nav>
-
-      <div class="sidebar-card">
-        <div class="status-dot"></div>
-        <div>
-          <strong>Offline bereit</strong>
-          <span>Alle Inhalte lokal verfügbar</span>
-        </div>
-      </div>
-      <div class="sidebar-footer">Version 1.0 · Ausbildungsmodus</div>
+      <div class="sidebar-foot"><div class="status-card"><strong style="color:#fff">● Offline bereit</strong><br>Alle Kerninhalte lokal verfügbar</div></div>
     </aside>
-
     <main class="main">
       <header class="topbar">
-        <button class="icon-button mobile-menu" id="mobileMenu" aria-label="Menü öffnen">☰</button>
-        <div class="breadcrumbs"><span>Rettungsdienst</span><b>/</b><span id="breadcrumbCurrent">Dashboard</span></div>
-        <div class="top-actions">
-          <button class="icon-button" id="emergencyBtn" title="Schnellzugriff auf kritische Situationen">⚠</button>
-          <button class="profile-chip"><span class="avatar">RD</span><span>Bereit</span></button>
-        </div>
+        <button class="mobile-menu" id="mobileMenu" aria-label="Menü öffnen">☰</button>
+        <div class="crumb">Rettungsdienst / <span id="breadcrumbCurrent">Dashboard</span></div>
+        <div class="top-actions"><button class="danger" id="emergencyBtn" title="Kritische Situationen">⚠ Sofortzugriff</button></div>
       </header>
-
       <section id="app" class="page"></section>
     </main>
   </div>
-
   <div class="modal hidden" id="emergencyModal" role="dialog" aria-modal="true" aria-labelledby="emergencyTitle">
-    <div class="modal-card">
-      <div class="modal-head"><div><span class="eyebrow red">SOFORT-ZUGRIFF</span><h2 id="emergencyTitle">Kritische Situationen</h2></div><button class="close" id="closeEmergency">×</button></div>
-      <div class="quick-grid" id="emergencyGrid"></div>
+    <div class="modal-card" style="position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(650px,92vw);background:#111c2c;border:1px solid #334661;border-radius:18px;padding:20px;z-index:50;box-shadow:0 30px 80px rgba(0,0,0,.55)">
+      <div class="modal-head" style="display:flex;justify-content:space-between;align-items:start"><div><span class="eyebrow red">SOFORT-ZUGRIFF</span><h2 id="emergencyTitle">Kritische Situationen</h2></div><button class="close" id="closeEmergency" style="background:none;border:0;color:#fff;font-size:28px">×</button></div>
+      <div class="quick-grid" id="emergencyGrid" style="display:grid;gap:8px"></div>
     </div>
   </div>
-
+  <div id="emergencyBackdrop" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:45"></div>
   <script src="data.js"></script>
   <script src="app.js"></script>
 </body>
