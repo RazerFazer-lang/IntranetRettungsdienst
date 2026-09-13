@@ -33,10 +33,9 @@
     if(!b)return;
     const view=b.dataset.view;
     if(view==='lagebilder'||SUITE.has(view))return;
-    if(STANDARD[view]){
+    if(STANDARD[view] && openStandard(view)){
       e.preventDefault();
       e.stopImmediatePropagation();
-      openStandard(view);
     }
   },true);
 
