@@ -7,7 +7,8 @@
     medikamente:['Medikamente','renderMedikamente'],
     manv:['MANV / Sichtung','renderManv'],
     rechner:['Rechner','renderRechner'],
-    wissen:['Wissen','renderWissen']
+    wissen:['Wissen','renderWissen'],
+    'krankheiten-plus':['Krankheitsbilder','renderKrankheitenPlus']
   };
   const $=s=>document.querySelector(s);
   const closeDrawer=()=>{
@@ -57,9 +58,6 @@
     return true;
   }
 
-  // The training suite owns the canonical Startseite. Never allow the legacy app.js
-  // dashboard renderer to handle the sidebar button, because that would create a
-  // second, different home screen.
   const openHome=()=>{
     cleanupScenes();
     setActive('dashboard');
@@ -67,7 +65,6 @@
     if(typeof window.render==='function')window.render();
     closeDrawer();
   };
-
   const goHome=()=>openHome();
   document.addEventListener('click',e=>{
     const brand=e.target.closest?.('.brand');
@@ -77,48 +74,27 @@
     if((e.key==='Enter'||e.key===' ')&&e.target.closest?.('.brand')){e.preventDefault();goHome();}
   });
 
-  // Sidebar routing is owned here. Training routes must be routed explicitly so the
-  // legacy app.js click delegation cannot overwrite the learning-center Startseite.
   document.addEventListener('click',e=>{
     const b=e.target.closest?.('.nav-item');
     if(!b)return;
     const view=b.dataset.view;
     if(view==='dashboard'){
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      openHome();
-      return;
+      e.preventDefault();e.stopImmediatePropagation();openHome();return;
     }
-    if(SUITE_VIEWS.has(view)){
-      closeDrawer();
-      return;
-    }
-    if(view==='lagebilder'){
-      e.preventDefault();e.stopImmediatePropagation();openLagebilder();return;
-    }
-    if(STANDARD_VIEWS[view]){
-      e.preventDefault();e.stopImmediatePropagation();openStandard(view);
-    }
+    if(SUITE_VIEWS.has(view)){closeDrawer();return;}
+    if(view==='lagebilder'){e.preventDefault();e.stopImmediatePropagation();openLagebilder();return;}
+    if(STANDARD_VIEWS[view]){e.preventDefault();e.stopImmediatePropagation();openStandard(view);}
   },true);
 
   document.addEventListener('click',e=>{
-    if(e.target.closest?.('[data-suite-route]')){
-      setTimeout(closeDrawer,0);
-      return;
-    }
+    if(e.target.closest?.('[data-suite-route]')){setTimeout(closeDrawer,0);return;}
   },true);
 
   const oldNotfall=window.renderNotfallbilder;
   if(typeof oldNotfall==='function'&&!window.__rdNotfallCleanupWrapped){
     window.__rdNotfallCleanupWrapped=true;
-    window.renderNotfallbilder=function(){
-      oldNotfall();
-      cleanupScenes();
-      setTimeout(cleanupScenes,0);
-      setTimeout(cleanupScenes,50);
-    };
+    window.renderNotfallbilder=function(){oldNotfall();cleanupScenes();setTimeout(cleanupScenes,0);setTimeout(cleanupScenes,50);};
   }
-
   ensureLagebilderButton();
   setTimeout(ensureLagebilderButton,250);
   setTimeout(ensureLagebilderButton,800);
