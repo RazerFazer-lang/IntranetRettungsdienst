@@ -15,5 +15,5 @@ jobs:
         run: npm install --no-save playwright@1.55.0
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Run navigation regression
+      - name: Run sidebar + navigation regression
         run: node tests/navigation-regression.js
