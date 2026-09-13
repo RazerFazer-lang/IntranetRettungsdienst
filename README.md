@@ -4,7 +4,7 @@ Modernes, lokal nutzbares Rettungsdienst-Intranet als responsive Web-App.
 
 ## ▶️ Einzelspieler / App öffnen
 
-Nach aktivierter GitHub-Pages-Bereitstellung ist die Anwendung direkt im Browser erreichbar:
+Die Anwendung ist für den direkten Browserbetrieb vorbereitet:
 
 **https://razerfazer-lang.github.io/IntranetRettungsdienst/**
 
@@ -18,9 +18,9 @@ Die Oberfläche ist responsive und passt sich kleinen und großen Displays an. A
 
 Nach dem ersten vollständigen Laden werden die Kerndateien per Service Worker lokal zwischengespeichert. Dadurch bleiben die statischen Inhalte auch ohne Internetverbindung verfügbar.
 
-## 🌐 GitHub Pages aktivieren
+## 🌐 GitHub Pages
 
-Im Repository unter **Settings → Pages** als Quelle **GitHub Actions** auswählen. Danach übernimmt `.github/workflows/pages.yml` die Veröffentlichung bei jedem Push auf `main`.
+Die Repository-Einstellung steht auf **GitHub Actions**. Die Veröffentlichung übernimmt `.github/workflows/pages.yml` bei jedem Push auf `main`.
 
 ## 🧭 Bereiche
 
@@ -37,3 +37,5 @@ Im Repository unter **Settings → Pages** als Quelle **GitHub Actions** auswäh
 ## ⚠️ Medizinischer Hinweis
 
 Die Anwendung ist als Ausbildungs-, Strukturierungs- und Dokumentationshilfe gedacht. Sie ersetzt keine lokalen SOPs, Algorithmen, Leitlinien, ärztlichen Anordnungen oder qualifizierte klinische Beurteilung. Inhalte müssen vor produktivem Einsatz durch die zuständige Stelle geprüft und regional angepasst werden.
+
+> Deployment-Trigger: GitHub Pages / Actions Test 2026-09-13
