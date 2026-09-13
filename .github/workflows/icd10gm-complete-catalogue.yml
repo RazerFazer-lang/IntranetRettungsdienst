@@ -1,0 +1,53 @@
+name: Build complete ICD-10-GM 2026 catalogue
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/build-icd10gm.mjs'
+      - '.github/workflows/icd10gm-complete-catalogue.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Download official BfArM ICD-10-GM package
+        run: npm --registry https://terminologien.bfarm.de/packages install bfarm.terminologien.icd10gm --prefix ./.icd-package
+      - name: Build complete terminal catalogue
+        run: node scripts/build-icd10gm.mjs
+      - name: Install Playwright
+        run: npm install --no-save playwright@1.55.0
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run complete ICD-10-GM browser regression
+        run: node tests/icd10gm-complete-browser.js
+      - name: Bump service-worker cache and stage generated catalogue
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const p='cache-v7.js';
+          let s=fs.readFileSync(p,'utf8');
+          const m=s.match(/const CACHE='rd-intranet-v(\d+)'/);
+          const next=m?Number(m[1])+1:1;
+          s=s.replace(/const CACHE='rd-intranet-v\d+'/,`const CACHE='rd-intranet-v${next}'`);
+          if(!s.includes("'./krankheitslexikon-all-2026.js'"))s=s.replace("'./krankheiten.js'", "'./krankheitslexikon-all-2026.js','./krankheiten.js'");
+          fs.writeFileSync(p,s);
+          NODE
+          git add krankheitslexikon-all-2026.js cache-v7.js
+      - name: Commit generated catalogue
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if git diff --cached --quiet; then
+            echo 'No generated changes to commit.'
+          else
+            git commit -m 'Add complete ICD-10-GM 2026 catalogue'
+            git push origin main
+          fi
