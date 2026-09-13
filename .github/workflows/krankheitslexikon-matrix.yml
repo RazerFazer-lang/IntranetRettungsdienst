@@ -1,0 +1,27 @@
+name: Krankheitslexikon Browser Matrix
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-matrix:
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Playwright
+        run: npm install --no-save playwright@1.55.0
+      - name: Install browser
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Run disease lexicon matrix test
+        env:
+          BROWSER: ${{ matrix.browser }}
+        run: node tests/krankheitslexikon-browser-matrix.js
