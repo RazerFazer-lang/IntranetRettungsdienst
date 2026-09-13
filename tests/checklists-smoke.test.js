@@ -5,18 +5,10 @@ const assert = require('node:assert/strict');
 
 const rootDir = path.resolve(__dirname, '..');
 const source = fs.readFileSync(path.join(rootDir, 'checklists.js'), 'utf8');
-
-// 1) Syntax check: the standalone checklist controller must parse as JavaScript.
 new Function(source);
 
-// 2) Minimal DOM/runtime harness. The controller only needs #app, the breadcrumb,
-//    localStorage and a click target exposing closest()/hasAttribute()/getAttribute().
 const listeners = new Map();
-const app = {
-  innerHTML: '',
-  __stableChecklistBound: false,
-  addEventListener(type, fn) { listeners.set(type, fn); },
-};
+const app = { innerHTML: '', addEventListener(type, fn) { listeners.set(type, fn); } };
 const breadcrumb = { textContent: '' };
 const storage = new Map();
 const localStorage = {
@@ -24,42 +16,35 @@ const localStorage = {
   setItem(k, v) { storage.set(k, String(v)); },
   removeItem(k) { storage.delete(k); },
 };
-
 const document = {
   getElementById(id) {
     if (id === 'app') return app;
     if (id === 'breadcrumbCurrent') return breadcrumb;
     return null;
   },
+  querySelector() { return null; },
 };
 const window = {};
 
 vm.runInNewContext(source, {
-  window,
-  document,
-  localStorage,
-  console,
-  setTimeout,
-  clearTimeout,
-  JSON,
-  Math,
-  Number,
-  String,
-  Array,
+  window, document, localStorage, console, setTimeout, clearTimeout,
+  JSON, Math, Number, String, Array, Object,
 });
 
-assert.equal(typeof window.renderChecklisten, 'function', 'renderChecklisten must be exported');
-assert.ok(window.RD_CHECKLISTS, 'RD_CHECKLISTS must exist');
-assert.equal(Object.keys(window.RD_CHECKLISTS).length, 8, 'Expected 8 checklist modules');
+assert.equal(typeof window.renderChecklisten, 'function');
+assert.ok(window.RD_CHECKLISTS);
+assert.equal(Object.keys(window.RD_CHECKLISTS).length, 8);
+
 for (const [id, checklist] of Object.entries(window.RD_CHECKLISTS)) {
   assert.equal(checklist.questions.length, 12, `${id} must contain 12 questions`);
-  for (const q of checklist.questions) {
-    assert.equal(q.length, 4, `${id}: question tuple must contain title/text/answers/hint`);
-    assert.ok(q[0] && q[1], `${id}: question must have title and text`);
-    assert.ok(Array.isArray(q[2]) && q[2].length >= 2, `${id}: question needs answer choices`);
-    for (const choice of q[2]) {
-      assert.ok(Array.isArray(choice) && choice.length === 2, `${id}: answer choice shape invalid`);
-      assert.ok(['normal', 'warning', 'critical'].includes(choice[1]), `${id}: invalid answer severity`);
+  assert.ok(Array.isArray(checklist.plan) && checklist.plan.length > 0, `${id} needs a plan`);
+  for (const item of checklist.questions) {
+    assert.equal(typeof item, 'object');
+    assert.ok(item.title && item.text && item.hint, `${id}: invalid question object`);
+    assert.ok(Array.isArray(item.answers) && item.answers.length >= 2);
+    for (const choice of item.answers) {
+      assert.ok(choice.label);
+      assert.ok(['normal', 'warning', 'critical'].includes(choice.level), `${id}: invalid answer severity`);
     }
   }
 }
@@ -73,50 +58,48 @@ function eventTarget(attrs) {
 }
 function click(attrs) {
   const fn = listeners.get('click');
-  assert.equal(typeof fn, 'function', 'Checklist click handler must be bound to #app');
+  assert.equal(typeof fn, 'function', 'Checklist handler must be attached to #app');
   fn({ preventDefault() {}, target: eventTarget(attrs) });
 }
 
-// 3) Render overview and open a checklist.
+function completeCurrentChecklist(id) {
+  click({ 'data-cl-open': id });
+  assert.match(app.innerHTML, /CHECKLISTE \/ 1 VON 12/);
+  for (let i = 0; i < 12; i++) {
+    click({ 'data-cl-answer': '0' });
+    if (i < 11) click({ 'data-cl-next': '' });
+  }
+  assert.match(app.innerHTML, /ABFRAGE ABGESCHLOSSEN/);
+  assert.match(app.innerHTML, /Fragenprotokoll/);
+}
+
 window.renderChecklisten();
-assert.match(app.innerHTML, /data-cl-open="ABCDE"/, 'Overview must expose ABCDE as clickable');
+assert.match(app.innerHTML, /data-cl-open="ABCDE"/);
 assert.equal(breadcrumb.textContent, 'Checklisten');
 
+// Exercise navigation/state for ABCDE.
 click({ 'data-cl-open': 'ABCDE' });
-assert.match(app.innerHTML, /CHECKLISTE \/ 1 VON 12/, 'Opening ABCDE must render question 1');
-assert.match(app.innerHTML, /Atemweg|Reaktion|Eigenschutz/, 'Question navigation must be present');
-
-// 4) Select an answer and advance.
 click({ 'data-cl-answer': '0' });
-assert.match(app.innerHTML, /Nächste Frage/, 'Selecting an answer must keep the checklist interactive');
 click({ 'data-cl-next': '' });
-assert.match(app.innerHTML, /CHECKLISTE \/ 2 VON 12/, 'Next must advance exactly one question');
-
-// 5) Jump directly to question 6, then go back once.
+assert.match(app.innerHTML, /CHECKLISTE \/ 2 VON 12/);
 click({ 'data-cl-jump': '5' });
-assert.match(app.innerHTML, /CHECKLISTE \/ 6 VON 12/, 'Question jump must work');
+assert.match(app.innerHTML, /CHECKLISTE \/ 6 VON 12/);
 click({ 'data-cl-prev': '' });
-assert.match(app.innerHTML, /CHECKLISTE \/ 5 VON 12/, 'Back must go to previous question');
-
-// 6) Return to overview, reopen and verify local persistence.
+assert.match(app.innerHTML, /CHECKLISTE \/ 5 VON 12/);
 click({ 'data-cl-back': '' });
-assert.match(app.innerHTML, /data-cl-open="ABCDE"/, 'Back must return to checklist overview');
+assert.match(app.innerHTML, /data-cl-open="ABCDE"/);
+
+// Reopen ABCDE to verify local persistence and then reset it.
 click({ 'data-cl-open': 'ABCDE' });
-assert.match(app.innerHTML, /CHECKLISTE \/ 2 VON 12/, 'Saved answer must allow continuation');
-
-// 7) Complete all remaining questions. The last answer should produce the result screen
-//    without any recursion or event-handler churn.
-for (let i = 1; i < 12; i++) {
-  click({ 'data-cl-answer': '0' });
-  if (!/ABFRAGE ABGESCHLOSSEN/.test(app.innerHTML)) {
-    click({ 'data-cl-next': '' });
-  }
-}
-assert.match(app.innerHTML, /ABFRAGE ABGESCHLOSSEN/, 'Final answer must open result view');
-assert.match(app.innerHTML, /Fragenprotokoll/, 'Result view must contain question protocol');
-
-// 8) Reset from the result screen and ensure a fresh question starts.
+assert.match(app.innerHTML, /CHECKLISTE \/ 2 VON 12/);
 click({ 'data-cl-reset': '' });
-assert.match(app.innerHTML, /CHECKLISTE \/ 1 VON 12/, 'Reset must start the checklist again');
+assert.match(app.innerHTML, /CHECKLISTE \/ 1 VON 12/);
+click({ 'data-cl-back': '' });
+
+// Every checklist must at least open and complete end-to-end.
+for (const id of Object.keys(window.RD_CHECKLISTS)) completeCurrentChecklist(id);
+
+click({ 'data-cl-reset': '' });
+assert.match(app.innerHTML, /CHECKLISTE \/ 1 VON 12/);
 
 console.log('checklists smoke test: PASS');
