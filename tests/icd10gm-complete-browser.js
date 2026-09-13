@@ -46,12 +46,14 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
       if(await page.locator('.disease-plus-card').count()<1)throw new Error(`${requestedBrowser} ${viewport.name}: Sepsis search returned no result`);
       await page.locator('[data-dx-open]').first().click();
       await page.locator('#dxModal:not(.hidden)').waitFor({timeout:3000});
-      const closeBox=await page.locator('#dxClose').boundingBox();
-      if(!closeBox||Math.abs((closeBox.x+closeBox.width/2)-(closeBox.x+closeBox.width/2))>0.5)throw new Error(`${requestedBrowser} ${viewport.name}: close button geometry invalid`);
-      await page.locator('#dxClose').click();
+      const closeButton=page.locator('#dxClose');
+      const closeBox=await closeButton.boundingBox();
+      const closeStyle=await closeButton.evaluate(el=>{const s=getComputedStyle(el);return{width:parseFloat(s.width),height:parseFloat(s.height),display:s.display,placeItems:s.placeItems,justifyContent:s.justifyContent,alignItems:s.alignItems,padding:s.padding}});
+      if(!closeBox||Math.abs(closeBox.width-40)>1||Math.abs(closeBox.height-40)>1)throw new Error(`${requestedBrowser} ${viewport.name}: close button size is not 40x40`);
+      if(closeStyle.display!=='grid'||!/(center)/.test(closeStyle.placeItems||'')||closeStyle.padding!=='0px')throw new Error(`${requestedBrowser} ${viewport.name}: close button is not centered by CSS`);
+      await closeButton.click();
       await page.locator('#dxModal.hidden').waitFor({timeout:3000});
 
-      const totalPagesText=(await page.locator('.disease-plus-meta').textContent())||'';
       if(!/Sepsis/.test((await page.locator('#dxSearch').inputValue())))throw new Error(`${requestedBrowser} ${viewport.name}: search state lost`);
       await page.locator('#dxReset').click();
       await wait(50);
