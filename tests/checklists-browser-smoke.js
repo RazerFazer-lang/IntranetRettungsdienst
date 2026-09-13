@@ -44,23 +44,23 @@ const server = http.createServer((req, res) => {
     await page.goto(`http://127.0.0.1:${port}/`, { waitUntil: 'networkidle', timeout: 10000 });
 
     await page.locator('.nav-item[data-view="checklisten"]').click({ timeout: 5000 });
-    await page.locator('[data-cl-open="ABCDE"]').waitFor({ state: 'visible', timeout: 5000 });
+    await page.locator('[data-stable-open="ABCDE"]').waitFor({ state: 'visible', timeout: 5000 });
 
-    await page.locator('[data-cl-open="ABCDE"]').click({ timeout: 5000 });
+    await page.locator('[data-stable-open="ABCDE"]').click({ timeout: 5000 });
     await page.getByText('CHECKLISTE / 1 VON 12', { exact: false }).waitFor({ state: 'visible', timeout: 5000 });
 
-    await page.locator('[data-cl-answer="0"]').click({ timeout: 5000 });
-    await page.locator('[data-cl-next]').click({ timeout: 5000 });
+    await page.locator('[data-stable-answer="0"]').click({ timeout: 5000 });
+    await page.locator('[data-stable-next]').click({ timeout: 5000 });
     await page.getByText('CHECKLISTE / 2 VON 12', { exact: false }).waitFor({ state: 'visible', timeout: 5000 });
 
-    await page.locator('[data-cl-jump="5"]').click({ timeout: 5000 });
+    await page.locator('[data-stable-jump="5"]').click({ timeout: 5000 });
     await page.getByText('CHECKLISTE / 6 VON 12', { exact: false }).waitFor({ state: 'visible', timeout: 5000 });
 
-    await page.locator('[data-cl-prev]').click({ timeout: 5000 });
+    await page.locator('[data-stable-prev]').click({ timeout: 5000 });
     await page.getByText('CHECKLISTE / 5 VON 12', { exact: false }).waitFor({ state: 'visible', timeout: 5000 });
 
-    await page.locator('[data-cl-back]').click({ timeout: 5000 });
-    await page.locator('[data-cl-open="ABCDE"]').waitFor({ state: 'visible', timeout: 5000 });
+    await page.locator('[data-stable-back]').click({ timeout: 5000 });
+    await page.locator('[data-stable-open="ABCDE"]').waitFor({ state: 'visible', timeout: 5000 });
 
     if (errors.length) throw new Error(errors.join('\n'));
     console.log('browser checklist smoke test: PASS');
