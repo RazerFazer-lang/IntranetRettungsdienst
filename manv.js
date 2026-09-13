@@ -5,7 +5,7 @@
   if (!app || !nav) return;
 
   if (!nav.querySelector('[data-view="manv"]')) {
-    const btn = document.createElement('button'); btn.className='nav-item manv-nav'; btn.dataset.view='manv'; btn.innerHTML='<span>🚨</span> MANV / Sichtung'; nav.appendChild(btn);
+    const btn = document.createElement('button'); btn.className='nav-item manv-nav'; btn.dataset.view='manv'; btn.innerHTML='<span class="nav-icon">🚨</span><span class="nav-label">MANV / Sichtung</span>'; nav.appendChild(btn);
   }
   const state={total:0,sk1:0,sk2:0,sk3:0,sk4:0,ex:0,rtw:0,ktw:0,nea:0,location:'',incident:''};
   const esc=(s='')=>String(s).replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#039;'}[c]));
@@ -16,9 +16,8 @@
   function update(){read();const recorded=state.sk1+state.sk2+state.sk3+state.sk4+state.ex,diff=state.total-recorded,p=planning(state.total),balance=document.getElementById('manv-balance');if(!balance)return;balance.innerHTML=diff===0?'<span class="ok">✓ Patientenzahl vollständig erfasst</span>':`<span class="warn">${diff>0?'⚠':'ℹ'} ${Math.abs(diff)} Patienten ${diff>0?'noch nicht zugeordnet':'mehr Kategorien als Gesamtzahl'}</span>`;document.getElementById('manv-transports').textContent=state.rtw+state.ktw;document.getElementById('manv-summary').innerHTML=`<div class="summary-title">${esc(state.incident||'Unbenannte Lage')}</div><div class="summary-meta">${esc(state.location||'Einsatzort offen')}</div><div class="manv-bars"><div><span>SK I</span><b>${state.sk1}</b><i style="width:${state.total?Math.min(100,state.sk1/state.total*100):0}%"></i></div><div><span>SK II</span><b>${state.sk2}</b><i style="width:${state.total?Math.min(100,state.sk2/state.total*100):0}%"></i></div><div><span>SK III</span><b>${state.sk3}</b><i style="width:${state.total?Math.min(100,state.sk3/state.total*100):0}%"></i></div><div><span>SK IV</span><b>${state.sk4}</b><i style="width:${state.total?Math.min(100,state.sk4/state.total*100):0}%"></i></div><div><span>EX</span><b>${state.ex}</b><i style="width:${state.total?Math.min(100,state.ex/state.total*100):0}%"></i></div></div><div class="planning-note">Planungsorientierung für ${state.total} Patienten: SK I ca. ${p.sk1}, SK II ca. ${p.sk2}, SK III ca. ${p.sk3} (40/20/40 für SK I–III).</div>`}
   document.addEventListener('click',e=>{const target=e.target.closest('[data-view="manv"]');if(!target)return;e.preventDefault();e.stopImmediatePropagation();render()},true);
 
-  // Load the large disease catalogue only when requested.
   if(!nav.querySelector('[data-view="krankheiten"]')){
-    const btn=document.createElement('button');btn.className='nav-item';btn.dataset.view='krankheiten';btn.innerHTML='<span>📚</span> Krankheitsbilder';nav.appendChild(btn);
+    const btn=document.createElement('button');btn.className='nav-item';btn.dataset.view='krankheiten';btn.innerHTML='<span class="nav-icon">📚</span><span class="nav-label">Krankheitsbilder</span>';nav.appendChild(btn);
     btn.addEventListener('click',()=>{
       if(!document.getElementById('krankheiten-css')){const link=document.createElement('link');link.id='krankheiten-css';link.rel='stylesheet';link.href='./krankheiten.css';document.head.appendChild(link)}
       if(!document.getElementById('krankheiten-js')){const s=document.createElement('script');s.id='krankheiten-js';s.src='./krankheiten.js';document.body.appendChild(s)}
