@@ -15,14 +15,11 @@
     if(notfall) notfall.insertAdjacentElement('afterend',b); else n.appendChild(b);
   }
 
-  function removeScenePanel(){
-    document.getElementById('einsatzlagenSection')?.remove();
-  }
+  function removeScenePanel(){ document.getElementById('einsatzlagenSection')?.remove(); }
 
   function showLagebilder(){
     const host=app();
     if(!host || typeof renderEinsatzlagen!=='function') return;
-    removeScenePanel();
     host.innerHTML='<div class="view-title"><div><span class="eyebrow red">LAGEBILDER</span><h1>Realistische Einsatzlagen</h1><p>Eigenständiger Bereich für realistische Einsatzorte und Lageszenarien.</p></div></div><section id="einsatzlagenSection" class="panel einsatzlagen-panel"></section>';
     if(breadcrumb()) breadcrumb().textContent='Lagebilder / Einsatzlagen';
     document.querySelectorAll('.nav-item').forEach(x=>x.classList.toggle('active',x.dataset.view===VIEW));
@@ -33,24 +30,25 @@
   setTimeout(addButton,250);
   setTimeout(addButton,800);
 
+  // Only own the dedicated Lagebilder button. Other navigation is handled by
+  // navigation-ui-fix.js / the legacy app, so it cannot get blocked here.
   document.addEventListener('click',e=>{
-    const b=e.target.closest?.('.nav-item');
-    if(!b) return;
-    const view=b.dataset.view;
-    if(view===VIEW){
-      setTimeout(showLagebilder,0);
-      return;
-    }
-    setTimeout(removeScenePanel,20);
-    setTimeout(removeScenePanel,80);
+    const b=e.target.closest?.(`.nav-item[data-view="${VIEW}"]`);
+    if(!b)return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    showLagebilder();
   },true);
 
-  const oldNotfall=window.renderNotfallbilder;
-  if(typeof oldNotfall==='function'){
-    window.renderNotfallbilder=function(){
-      oldNotfall();
-      setTimeout(removeScenePanel,0);
-      setTimeout(removeScenePanel,35);
-    };
-  }
+  document.addEventListener('click',e=>{
+    const b=e.target.closest?.('.nav-item');
+    if(!b || b.dataset.view===VIEW)return;
+    setTimeout(removeScenePanel,0);
+  });
+
+  const observer=new MutationObserver(()=>{
+    const active=document.querySelector('.nav-item.active')?.dataset.view;
+    if(active!==VIEW) removeScenePanel();
+  });
+  observer.observe(document.getElementById('app')||document.body,{childList:true,subtree:true});
 })();
