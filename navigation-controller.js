@@ -17,6 +17,7 @@
   const setActive=view=>document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
   const breadcrumb=text=>{const el=$('#breadcrumbCurrent');if(el)el.textContent=text};
   const cleanupScenes=()=>document.getElementById('einsatzlagenSection')?.remove();
+  const navButton=(view,icon,label)=>`<span class="nav-icon">${icon}</span><span class="nav-label${label.length>19?' long':''}">${label}</span>`;
 
   function ensureLagebilderButton(){
     const nav=$('.nav');
@@ -24,7 +25,7 @@
     const b=document.createElement('button');
     b.className='nav-item';
     b.dataset.view='lagebilder';
-    b.innerHTML='<span>🖼️</span> Lagebilder / Einsatzlagen';
+    b.innerHTML=navButton('lagebilder','🖼️','Lagebilder / Einsatzlagen');
     const anchor=nav.querySelector('[data-view="notfallbilder"]');
     if(anchor)anchor.insertAdjacentElement('afterend',b);else nav.appendChild(b);
   }
@@ -32,7 +33,7 @@
   function openSuite(view){
     if(!SUITE_VIEWS.has(view)||typeof window.render!=='function')return false;
     setActive(view);
-    breadcrumb(view==='dashboard'?'Dashboard':document.querySelector(`[data-view="${view}"]`)?.textContent?.trim()||'Training');
+    breadcrumb(view==='dashboard'?'Dashboard':document.querySelector(`[data-view="${view}"]`)?.querySelector('.nav-label')?.textContent?.trim()||'Training');
     cleanupScenes();
     window.render();
     closeDrawer();
@@ -65,9 +66,6 @@
     return true;
   }
 
-  // Own the complete sidebar routing layer. The legacy app.js uses a lexical
-  // currentView variable, so standard views are opened by their render
-  // functions directly instead of depending on a second competing router.
   document.addEventListener('click',e=>{
     const b=e.target.closest?.('.nav-item');
     if(!b)return;
@@ -83,7 +81,6 @@
     }
   },true);
 
-  // Dashboard cards, quick-start buttons and global-search results use data-suite-route.
   document.addEventListener('click',e=>{
     const route=e.target.closest?.('[data-suite-route]')?.dataset.suiteRoute;
     if(!route||!SUITE_VIEWS.has(route))return;
@@ -92,9 +89,6 @@
     openSuite(route);
   },true);
 
-  // The legacy Notfallbilder renderer is wrapped by einsatzlagen.js. Keep that
-  // legacy file untouched, but always remove its injected panel immediately
-  // after a normal Notfallbilder render so Lagebilder remain isolated.
   const oldNotfall=window.renderNotfallbilder;
   if(typeof oldNotfall==='function'&&!window.__rdNotfallCleanupWrapped){
     window.__rdNotfallCleanupWrapped=true;
