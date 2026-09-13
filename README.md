@@ -1,40 +1,39 @@
 # 🚑 Rettungsdienst Intranet
 
-Modernes, lokal nutzbares Web-Intranet als digitale **Abfrage-, Lern- und Strukturierungshilfe** für den Rettungsdienst.
+Modernes, lokal nutzbares Rettungsdienst-Intranet als responsive Web-App.
 
-## Enthalten
+## ▶️ Einzelspieler / App öffnen
 
-- Dashboard mit Schnellzugriffen
-- Interaktive symptomorientierte Abfragebäume
-- Häufige Einsatzsituationen
+Nach aktivierter GitHub-Pages-Bereitstellung ist die Anwendung direkt im Browser erreichbar:
+
+**https://razerfazer-lang.github.io/IntranetRettungsdienst/**
+
+Der Link kann auf PC, Notebook, Tablet und Smartphone geöffnet werden.
+
+## 📱 Handy, Tablet & PC
+
+Die Oberfläche ist responsive und passt sich kleinen und großen Displays an. Auf unterstützten Browsern kann sie zusätzlich über **„App installieren“** zum Startbildschirm bzw. als eigenständige Web-App hinzugefügt werden.
+
+## 📴 Offline-Nutzung
+
+Nach dem ersten vollständigen Laden werden die Kerndateien per Service Worker lokal zwischengespeichert. Dadurch bleiben die statischen Inhalte auch ohne Internetverbindung verfügbar.
+
+## 🌐 GitHub Pages aktivieren
+
+Im Repository unter **Settings → Pages** als Quelle **GitHub Actions** auswählen. Danach übernimmt `.github/workflows/pages.yml` die Veröffentlichung bei jedem Push auf `main`.
+
+## 🧭 Bereiche
+
+- Dashboard
+- Abfragehilfe
 - Notfallbilder
-- Checklisten-Bereich
+- Checklisten
+- Rechner
 - Wissensbereich
-- Globale Suche
-- Kritischer Schnellzugriff
-- Responsive Design für Desktop, Tablet und Smartphone
-- Keine Datenbank und kein Backend notwendig
-- Kernfunktionen vollständig lokal nutzbar
+- kritischer Schnellzugriff
+- lokale Abfragebäume
+- PWA-/Installationsunterstützung
 
-## Starten
+## ⚠️ Medizinischer Hinweis
 
-Einfach `index.html` lokal im Browser öffnen.
-
-Alternativ kann das Repository direkt über **GitHub Pages** bereitgestellt werden.
-
-## Struktur
-
-```text
-index.html    → Oberfläche und App-Shell
-styles.css    → komplettes UI/Responsive Design
-data.js       → Inhalte und Abfragebäume
-app.js        → Navigation, Suche und Interaktionen
-```
-
-## Inhalte erweitern
-
-Die fachlichen Inhalte befinden sich in `data.js`. Neue Abfragen werden über `RD_DATA.guides` ergänzt. Die Oberfläche ist bewusst datengetrieben aufgebaut, damit später sehr viele Abfragebäume, SOP-Verweise, Wissensartikel und Checklisten ergänzt werden können.
-
-## Fachlicher Hinweis
-
-Dieses Projekt ist als Software-, Ausbildungs- und Strukturierungshilfe gedacht. Die enthaltenen Beispielinhalte sind **keine verbindlichen medizinischen Handlungsanweisungen** und ersetzen keine lokalen SOPs, Algorithmen, Leitlinien, ärztlichen Anordnungen oder qualifizierte klinische Beurteilung. Vor einem produktiven Einsatz müssen alle Inhalte fachlich geprüft, freigegeben und regelmäßig versioniert werden.
+Die Anwendung ist als Ausbildungs-, Strukturierungs- und Dokumentationshilfe gedacht. Sie ersetzt keine lokalen SOPs, Algorithmen, Leitlinien, ärztlichen Anordnungen oder qualifizierte klinische Beurteilung. Inhalte müssen vor produktivem Einsatz durch die zuständige Stelle geprüft und regional angepasst werden.
