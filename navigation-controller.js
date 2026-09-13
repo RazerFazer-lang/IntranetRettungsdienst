@@ -13,11 +13,12 @@
   const closeDrawer=()=>{
     $('#sidebar')?.classList.remove('open');
     document.body.classList.remove('nav-drawer-open','sidebar-collapsed');
+    $('#mobileMenu')?.setAttribute('aria-expanded','false');
   };
   const setActive=view=>document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
   const breadcrumb=text=>{const el=$('#breadcrumbCurrent');if(el)el.textContent=text};
   const cleanupScenes=()=>document.getElementById('einsatzlagenSection')?.remove();
-  const navButton=(view,icon,label)=>`<span class="nav-icon">${icon}</span><span class="nav-label${label.length>19?' long':''}">${label}</span>`;
+  const navButton=(icon,label)=>`<span class="nav-icon">${icon}</span><span class="nav-label">${label}</span>`;
 
   function ensureLagebilderButton(){
     const nav=$('.nav');
@@ -25,19 +26,9 @@
     const b=document.createElement('button');
     b.className='nav-item';
     b.dataset.view='lagebilder';
-    b.innerHTML=navButton('lagebilder','🖼️','Lagebilder / Einsatzlagen');
+    b.innerHTML=navButton('🖼️','Lagebilder / Einsatzlagen');
     const anchor=nav.querySelector('[data-view="notfallbilder"]');
     if(anchor)anchor.insertAdjacentElement('afterend',b);else nav.appendChild(b);
-  }
-
-  function openSuite(view){
-    if(!SUITE_VIEWS.has(view)||typeof window.render!=='function')return false;
-    setActive(view);
-    breadcrumb(view==='dashboard'?'Dashboard':document.querySelector(`[data-view="${view}"]`)?.querySelector('.nav-label')?.textContent?.trim()||'Training');
-    cleanupScenes();
-    window.render();
-    closeDrawer();
-    return true;
   }
 
   function openStandard(view){
@@ -66,12 +57,16 @@
     return true;
   }
 
+  // Standard pages and the standalone Lagebilder page are owned here. Training-suite
+  // navigation is intentionally left to ausbildung-suite.js so its internal view state
+  // remains synchronized with the sidebar and dashboard cards.
   document.addEventListener('click',e=>{
     const b=e.target.closest?.('.nav-item');
     if(!b)return;
     const view=b.dataset.view;
     if(SUITE_VIEWS.has(view)){
-      e.preventDefault();e.stopImmediatePropagation();openSuite(view);return;
+      closeDrawer();
+      return;
     }
     if(view==='lagebilder'){
       e.preventDefault();e.stopImmediatePropagation();openLagebilder();return;
@@ -81,12 +76,12 @@
     }
   },true);
 
+  // Let the training suite handle its own route state; only close the mobile drawer.
   document.addEventListener('click',e=>{
-    const route=e.target.closest?.('[data-suite-route]')?.dataset.suiteRoute;
-    if(!route||!SUITE_VIEWS.has(route))return;
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    openSuite(route);
+    if(e.target.closest?.('[data-suite-route]')){
+      setTimeout(closeDrawer,0);
+      return;
+    }
   },true);
 
   const oldNotfall=window.renderNotfallbilder;
