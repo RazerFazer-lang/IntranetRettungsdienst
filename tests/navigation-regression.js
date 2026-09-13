@@ -18,7 +18,7 @@ const errors=[];
     const standard={
       abfrage:{selector:'h1',text:'Womit brauchst du Hilfe?'},
       notfallbilder:{selector:'#caseGrid'},
-      checklisten:{selector:'h1',text:'Praktische Kurzlisten'},
+      checklisten:{selector:'h1',text:'Geführte Einsatzabfragen'},
       medikamente:{selector:'h1',text:'Rettungsdienst-Liste'},
       manv:{selector:'h1',text:'MANV-Sichtungsübersicht'},
       rechner:{selector:'h1',text:'Praktische Schnellrechner'},
