@@ -23,8 +23,25 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Build complete terminal catalogue from official BfArM ValueSet
-        run: node scripts/build-icd10gm.mjs
+      - name: Download official BfArM terminal ValueSet
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 6 --retry-all-errors --connect-timeout 20 --max-time 120 \
+            -H 'Accept: application/json' \
+            -A 'IntranetRettungsdienst ICD-10-GM 2026 importer' \
+            'https://terminologien.bfarm.de/rendering_data/ValueSet-icd10gm-terminale-codes-2026.json' \
+            -o .icd10gm-valueset-2026.json
+          node - <<'NODE'
+          const fs=require('fs');
+          const p='.icd10gm-valueset-2026.json';
+          const d=JSON.parse(fs.readFileSync(p,'utf8'));
+          const rows=Array.isArray(d.rows)?d.rows:Array.isArray(d?.expansion?.contains)?d.expansion.contains:(Array.isArray(d?.compose?.include)?d.compose.include.flatMap(x=>Array.isArray(x?.concept)?x.concept:[]):[]);
+          const unique=new Set(rows.map(x=>String(x.Code||x.code||'').trim()).filter(Boolean));
+          console.log(`BfArM ValueSet rows: ${rows.length}; unique codes: ${unique.size}`);
+          if(!rows.length) throw new Error('BfArM ValueSet contains no rows');
+          NODE
+      - name: Build complete terminal catalogue from downloaded BfArM ValueSet
+        run: node scripts/build-icd10gm.mjs .icd10gm-valueset-2026.json
       - name: Verify generated catalogue syntax and exact count
         run: |
           node --check krankheitslexikon-all-2026.js
