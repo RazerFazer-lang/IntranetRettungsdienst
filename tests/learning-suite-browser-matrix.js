@@ -11,6 +11,12 @@ const server=http.createServer((req,res)=>{const url=(req.url||'/').split('?')[0
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 async function nav(page,view){const b=page.locator(`.nav-item[data-view="${view}"]`);await b.waitFor({timeout:7000});await b.scrollIntoViewIfNeeded();await b.click();await wait(40)}
 async function answerCorrect(page,name){const card=page.locator('.learning-question').first();const correct=await card.getAttribute('data-correct');if(correct===null)throw new Error(`missing data-correct for ${name}`);await page.locator(`input[name="${name}"][value="${correct}"]`).check();}
+async function assertCanonicalHome(page,label){
+  await page.locator('.learn-hero h1').filter({hasText:'Startseite – dein Lernzentrum.'}).waitFor({timeout:7000});
+  if(await page.locator('.hero h1').filter({hasText:'Strukturiert handeln.'}).count())throw new Error(`${BROWSER}: ${label} opened the legacy operational dashboard`);
+  const stat=(await page.locator('.learn-stats .suite-stat strong').first().textContent()||'').trim();
+  if(stat!=='0/7' && stat!=='7/7')throw new Error(`${BROWSER}: ${label} has unexpected learning-module counter ${stat}`);
+}
 (async()=>{
  await new Promise(r=>server.listen(port,'127.0.0.1',r));
  const browser=await launchers[BROWSER].launch({headless:true});
@@ -26,14 +32,21 @@ async function answerCorrect(page,name){const card=page.locator('.learning-quest
    if((await page.locator('.suite-stat strong').first().textContent())?.trim()!=='100%')throw new Error(`${BROWSER}: progress migration did not reach 100%`);
    if((await page.locator('.learn-module.done').count())!==7)throw new Error(`${BROWSER}: migration did not mark seven learning modules done`);
 
-   // Regression: the sidebar Startseite must always open the learning-center home,
-   // never the legacy operational dashboard from app.js.
+   // Canonical-home regression: both the sidebar Startseite and the RD INTRANET brand
+   // must lead to exactly the same learning-center home, never a legacy renderer.
+   await page.evaluate(()=>{localStorage.removeItem('rd-suite-progress-v2');localStorage.removeItem('rd-suite-progress-v1')});
+   await page.reload({waitUntil:'networkidle'});
+   await assertCanonicalHome(page,'initial load');
    await nav(page,'abfrage');
    if(!(await page.locator('.view-title h1').filter({hasText:'Womit brauchst du Hilfe?'}).count()))throw new Error(`${BROWSER}: Abfragehilfe did not open`);
    await nav(page,'dashboard');
-   await page.locator('.learn-hero h1').waitFor({timeout:7000});
-   if(!(await page.locator('.learn-hero h1').filter({hasText:'Startseite – dein Lernzentrum.'}).count()))throw new Error(`${BROWSER}: Startseite opened the wrong dashboard`);
-   if(await page.locator('.hero h1').filter({hasText:'Strukturiert handeln.'}).count())throw new Error(`${BROWSER}: legacy dashboard is still visible on Startseite`);
+   await assertCanonicalHome(page,'sidebar Startseite');
+   const sidebarCounter=(await page.locator('.learn-stats .suite-stat strong').first().textContent()||'').trim();
+   await nav(page,'abfrage');
+   await page.locator('.brand').click();
+   await assertCanonicalHome(page,'RD INTRANET brand');
+   const brandCounter=(await page.locator('.learn-stats .suite-stat strong').first().textContent()||'').trim();
+   if(brandCounter!==sidebarCounter)throw new Error(`${BROWSER}: brand and sidebar Startseite show different learning counters (${brandCounter} vs ${sidebarCounter})`);
 
    await page.evaluate(()=>{localStorage.removeItem('rd-suite-progress-v2');localStorage.removeItem('rd-suite-progress-v1')});
    await page.reload({waitUntil:'networkidle'});
