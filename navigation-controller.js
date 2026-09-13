@@ -57,6 +57,23 @@
     return true;
   }
 
+  // Startseite: Brand/Logo always routes through the canonical dashboard button,
+  // so the training suite remains the single owner of its state.
+  const goHome=()=>{
+    const home=$('.nav-item[data-view="dashboard"]');
+    if(home){home.click();setTimeout(()=>breadcrumb('Startseite'),0);}
+    else{breadcrumb('Startseite');setActive('dashboard');if(typeof window.render==='function')window.render();}
+    cleanupScenes();
+    closeDrawer();
+  };
+  document.addEventListener('click',e=>{
+    const brand=e.target.closest?.('.brand');
+    if(brand){e.preventDefault();e.stopPropagation();goHome();return;}
+  });
+  document.addEventListener('keydown',e=>{
+    if((e.key==='Enter'||e.key===' ')&&e.target.closest?.('.brand')){e.preventDefault();goHome();}
+  });
+
   // Standard pages and the standalone Lagebilder page are owned here. Training-suite
   // navigation is intentionally left to ausbildung-suite.js so its internal view state
   // remains synchronized with the sidebar and dashboard cards.
@@ -66,6 +83,7 @@
     const view=b.dataset.view;
     if(SUITE_VIEWS.has(view)){
       closeDrawer();
+      if(view==='dashboard')setTimeout(()=>breadcrumb('Startseite'),0);
       return;
     }
     if(view==='lagebilder'){
