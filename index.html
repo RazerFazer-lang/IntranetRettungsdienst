@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="notfallbilder.css">
   <link rel="stylesheet" href="einsatzlagen.css">
   <link rel="stylesheet" href="krankheitslexikon-plus.css">
+  <link rel="stylesheet" href="krankheitslexikon-plus-fixes.css">
   <link rel="stylesheet" href="ausbildung-suite.css">
   <link rel="stylesheet" href="navigation-fixes.css">
   <link rel="stylesheet" href="learning-suite-v2.css">
@@ -68,7 +69,7 @@
   <script src="search-preview-v2.js"></script>
   <script src="manv.js"></script>
   <script src="einsatzlagen.js"></script>
-  <script src="krankheitslexikon-data.js"></script>
+  <script src="krankheitslexikon-data-v2.js"></script>
   <script src="krankheitslexikon-plus.js"></script>
   <script>
     (()=>{try{if(!localStorage.getItem('rd-suite-progress-v2')){const old=JSON.parse(localStorage.getItem('rd-suite-progress-v1')||'null');if(old){const core=['abcde','dokumentation','medlernen','gefahren','psychiatrie','pruefung','wissensdatenbank'];const completed={};core.forEach(k=>{if(old.done?.[k])completed[k]=true});localStorage.setItem('rd-suite-progress-v2',JSON.stringify({completed,attempts:{},abcdeIndex:0,medIndex:0,medSeen:[],medQuiz:0,hazardIndex:0,hazardAnswered:0,hazardCorrect:0,psychIndex:0,psychAnswered:0,psychCorrect:0,knowledgeRead:[],quizCorrect:Number(old.quizCorrect||0),quizTotal:Number(old.quizTotal||0),examBest:Number(old.examBest||0),examAttempts:old.examBest?1:0,docs:Number(old.docs||0),updatedAt:Date.now()}))}}}catch{}})();
