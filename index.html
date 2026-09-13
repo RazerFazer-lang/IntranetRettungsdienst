@@ -17,29 +17,27 @@
 <body>
   <div class="app-shell">
     <aside class="sidebar" id="sidebar">
-      <div class="brand">
-        <div class="brand-mark">✚</div>
-        <div><strong>RD INTRANET</strong><span>Digitale Einsatzhilfe</span></div>
-      </div>
+      <div class="brand"><div class="brand-mark">✚</div><div><strong>RD INTRANET</strong><span>Digitale Einsatzhilfe</span></div></div>
       <nav class="nav" aria-label="Hauptnavigation">
         <button class="nav-item active" data-view="dashboard"><span>⌂</span> Dashboard</button>
         <button class="nav-item" data-view="abfrage"><span>☷</span> Abfragehilfe</button>
         <button class="nav-item" data-view="notfallbilder"><span>✚</span> Notfallbilder</button>
         <button class="nav-item" data-view="checklisten"><span>✓</span> Checklisten</button>
+        <button class="nav-item" data-view="medikamente"><span>▣</span> Medikamente</button>
         <button class="nav-item" data-view="rechner"><span>▦</span> Rechner</button>
         <button class="nav-item" data-view="wissen"><span>▤</span> Wissen</button>
       </nav>
       <div class="sidebar-card"><div class="status-dot"></div><div><strong>Offline bereit</strong><span>Nach dem ersten Laden lokal nutzbar</span></div></div>
-      <div class="sidebar-footer">Version 1.1 · Ausbildungsmodus</div>
+      <div class="sidebar-footer">Version 1.2 · Ausbildungs-/RP-Modus</div>
     </aside>
     <main class="main">
       <header class="topbar">
         <button class="icon-button mobile-menu" id="mobileMenu" aria-label="Menü öffnen">☰</button>
         <div class="breadcrumbs"><span>Rettungsdienst</span><b>/</b><span id="breadcrumbCurrent">Dashboard</span></div>
         <div class="top-actions">
-          <a class="app-link" href="./" aria-label="Rettungsdienst Intranet im Browser öffnen">↗ App öffnen</a>
+          <a class="app-link" href="./">↗ App öffnen</a>
           <button class="icon-button" id="installBtn" title="App installieren" hidden>＋ Installieren</button>
-          <button class="icon-button" id="emergencyBtn" title="Schnellzugriff auf kritische Situationen">⚠</button>
+          <button class="icon-button danger" id="emergencyBtn" title="Kritische Situationen">⚠</button>
           <button class="profile-chip"><span class="avatar">RD</span><span>Bereit</span></button>
         </div>
       </header>
@@ -47,18 +45,16 @@
     </main>
   </div>
   <div class="modal hidden" id="emergencyModal" role="dialog" aria-modal="true" aria-labelledby="emergencyTitle">
-    <div class="modal-card">
-      <div class="modal-head"><div><span class="eyebrow red">SOFORT-ZUGRIFF</span><h2 id="emergencyTitle">Kritische Situationen</h2></div><button class="close" id="closeEmergency">×</button></div>
-      <div class="quick-grid" id="emergencyGrid"></div>
-    </div>
+    <div class="modal-card"><div class="modal-head"><div><span class="eyebrow red">SOFORT-ZUGRIFF</span><h2 id="emergencyTitle">Kritische Situationen</h2></div><button class="close" id="closeEmergency">×</button></div><div class="quick-grid" id="emergencyGrid"></div></div>
   </div>
   <script src="data.js"></script>
+  <script src="meds.js"></script>
   <script src="app.js"></script>
   <script>
-    if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+    if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
     let deferredInstallPrompt;
-    const installBtn = document.getElementById('installBtn');
-    window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstallPrompt=e; installBtn.hidden=false; installBtn.onclick=async()=>{deferredInstallPrompt.prompt(); await deferredInstallPrompt.userChoice; deferredInstallPrompt=null; installBtn.hidden=true;}; });
+    const installBtn=document.getElementById('installBtn');
+    window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;installBtn.hidden=false;installBtn.onclick=async()=>{deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;installBtn.hidden=true;};});
     window.addEventListener('appinstalled',()=>{installBtn.hidden=true;});
   </script>
 </body>
