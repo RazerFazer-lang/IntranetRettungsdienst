@@ -1,5 +1,4 @@
 name: Build complete ICD-10-GM 2026 catalogue
-
 on:
   push:
     branches: [main]
@@ -11,10 +10,8 @@ on:
       - 'krankheitslexikon-plus-fixes.css'
       - 'index.html'
   workflow_dispatch:
-
 permissions:
   contents: write
-
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -23,11 +20,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-
       - name: Download official BfArM terminal ValueSet
         run: |
           set -euo pipefail
@@ -37,7 +32,6 @@ jobs:
             -A 'IntranetRettungsdienst ICD-10-GM 2026 importer' \
             'https://terminologien.bfarm.de/rendering_data/ValueSet-icd10gm-terminale-codes-2026.json' \
             -o .icd10gm-valueset-2026.json
-
           node - <<'NODE'
           const fs=require('fs');
           const p='.icd10gm-valueset-2026.json';
@@ -60,28 +54,27 @@ jobs:
             throw new Error(`Authoritative terminal catalogue must contain exactly 14370 unique codes; rows=${rows.length}, unique=${unique.size}`);
           }
           NODE
-
       - name: Build complete terminal catalogue
         run: node scripts/build-icd10gm.mjs .icd10gm-valueset-2026.json
-
       - name: Verify generated catalogue exactly
         run: |
           node --check krankheitslexikon-all-2026.js
           node - <<'NODE'
           const fs=require('fs');
           const s=fs.readFileSync('krankheitslexikon-all-2026.js','utf8');
-          const m=s.match(/window\.RD_ICD10GM_ALL=(\[.*\]);\nwindow\.RD_ICD10GM_META=/s);
-          if(!m) throw new Error('Generated catalogue array not found');
+          const m=s.match(/window\.RD_ICD10GM_ALL=(\[.*\]);\nwindow\.RD_ICD10GM_META=(\{.*\});/s);
+          if(!m) throw new Error('Generated catalogue payload not found');
           const entries=JSON.parse(m[1]);
+          const meta=JSON.parse(m[2]);
           if(entries.length!==14370) throw new Error(`Generated entries=${entries.length}, expected 14370`);
           const codes=new Set(entries.map(x=>x.code));
           if(codes.size!==14370) throw new Error(`Generated unique codes=${codes.size}, expected 14370`);
-          if(!s.includes('terminalCount:14370')) throw new Error('Generated catalogue does not report terminalCount 14370');
-          for(const key of ['I21.0','J18.9','A41.9']) if(!codes.has(key)) console.log(`Note: sample ${key} not present in terminal set`);
+          if(meta.terminalCount!==14370) throw new Error(`Generated meta terminalCount=${meta.terminalCount}, expected 14370`);
+          if(meta.version!=='2026') throw new Error(`Generated meta version=${meta.version}, expected 2026`);
           console.log(`Verified generated ICD-10-GM terminal entries: ${entries.length}`);
+          console.log(`Generated meta terminalCount: ${meta.terminalCount}`);
           console.log(`Generated file bytes: ${fs.statSync('krankheitslexikon-all-2026.js').size}`);
           NODE
-
       - name: Bump service-worker cache and stage generated catalogue
         run: |
           node - <<'NODE'
@@ -91,14 +84,11 @@ jobs:
           const m=s.match(/const CACHE='rd-intranet-v(\d+)'/);
           const next=m?Number(m[1])+1:1;
           s=s.replace(/const CACHE='rd-intranet-v\d+'/,`const CACHE='rd-intranet-v${next}'`);
-          if(!s.includes("'./krankheitslexikon-all-2026.js'")){
-            s=s.replace("'./krankheiten.js'", "'./krankheitslexikon-all-2026.js','./krankheiten.js'");
-          }
+          if(!s.includes("'./krankheitslexikon-all-2026.js'"))s=s.replace("'./krankheiten.js'", "'./krankheitslexikon-all-2026.js','./krankheiten.js'");
           fs.writeFileSync(p,s);
           console.log(`Service-worker cache bumped to rd-intranet-v${next}`);
           NODE
           git add krankheitslexikon-all-2026.js cache-v7.js
-
       - name: Commit generated catalogue
         run: |
           git config user.name 'github-actions[bot]'
