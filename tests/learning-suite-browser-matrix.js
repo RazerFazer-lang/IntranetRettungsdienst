@@ -9,6 +9,7 @@ const launchers={chromium,firefox,webkit};
 function mime(file){const ext=path.extname(file).toLowerCase();return ({'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.webmanifest':'application/manifest+json'})[ext]||'application/octet-stream'}
 const server=http.createServer((req,res)=>{const url=(req.url||'/').split('?')[0];const rel=decodeURIComponent(url==='/'?'/index.html':url);const file=path.join(root,rel);if(!file.startsWith(root)){res.writeHead(403);return res.end()}fs.readFile(file,(err,data)=>{if(err){res.writeHead(404);return res.end('Not found')}res.writeHead(200,{'Content-Type':mime(file),'Cache-Control':'no-store'});res.end(data)})});
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
+async function launchBrowser(){if(BROWSER==='edge')return chromium.launch({headless:true,channel:'msedge'});const launcher=launchers[BROWSER];if(!launcher)throw new Error(`Unsupported browser: ${BROWSER}`);return launcher.launch({headless:true})}
 async function nav(page,view){const b=page.locator(`.nav-item[data-view="${view}"]`);await b.waitFor({timeout:7000});await b.scrollIntoViewIfNeeded();await b.click();await wait(40)}
 async function answerCorrect(page,name){const card=page.locator('.learning-question').first();const correct=await card.getAttribute('data-correct');if(correct===null)throw new Error(`missing data-correct for ${name}`);await page.locator(`input[name="${name}"][value="${correct}"]`).check();}
 async function assertCanonicalHome(page,label){
@@ -19,7 +20,7 @@ async function assertCanonicalHome(page,label){
 }
 (async()=>{
  await new Promise(r=>server.listen(port,'127.0.0.1',r));
- const browser=await launchers[BROWSER].launch({headless:true});
+ const browser=await launchBrowser();
  try{
   for(const viewport of [{width:1920,height:1080},{width:390,height:844}]){
    const page=await browser.newPage({viewport});const errors=[];
@@ -34,8 +35,6 @@ async function assertCanonicalHome(page,label){
    if((await page.locator('.suite-stat strong').first().textContent())?.trim()!=='100%')throw new Error(`${BROWSER}: progress migration did not reach 100%`);
    if((await page.locator('.learn-module.done').count())!==7)throw new Error(`${BROWSER}: migration did not mark seven learning modules done`);
 
-   // Canonical-home regression: both the sidebar Startseite and the RD INTRANET brand
-   // must lead to exactly the same main menu, never a legacy renderer.
    await page.evaluate(()=>{localStorage.removeItem('rd-suite-progress-v2');localStorage.removeItem('rd-suite-progress-v1')});
    await page.locator('.nav-item[data-view="dashboard"]').click();
    await assertCanonicalHome(page,'sidebar Startseite');
