@@ -12,10 +12,10 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
 async function nav(page,view){const b=page.locator(`.nav-item[data-view="${view}"]`);await b.waitFor({timeout:7000});await b.scrollIntoViewIfNeeded();await b.click();await wait(40)}
 async function answerCorrect(page,name){const card=page.locator('.learning-question').first();const correct=await card.getAttribute('data-correct');if(correct===null)throw new Error(`missing data-correct for ${name}`);await page.locator(`input[name="${name}"][value="${correct}"]`).check();}
 async function assertCanonicalHome(page,label){
-  await page.locator('.learn-hero h1').filter({hasText:'Startseite – dein Lernzentrum.'}).waitFor({timeout:7000});
+  await page.locator('.rd-mainmenu-hero h1').filter({hasText:'Hauptmenü'}).waitFor({timeout:7000});
+  const tileCount=await page.locator('.rd-mainmenu-tile').count();
+  if(tileCount<14)throw new Error(`${BROWSER}: ${label} has only ${tileCount} main menu tiles`);
   if(await page.locator('.hero h1').filter({hasText:'Strukturiert handeln.'}).count())throw new Error(`${BROWSER}: ${label} opened the legacy operational dashboard`);
-  const stat=(await page.locator('.learn-stats .suite-stat strong').first().textContent()||'').trim();
-  if(stat!=='0/7' && stat!=='7/7')throw new Error(`${BROWSER}: ${label} has unexpected learning-module counter ${stat}`);
 }
 (async()=>{
  await new Promise(r=>server.listen(port,'127.0.0.1',r));
@@ -26,30 +26,27 @@ async function assertCanonicalHome(page,label){
    page.on('pageerror',e=>errors.push(`pageerror: ${e.message}`));page.on('console',m=>{if(m.type()==='error')errors.push(`console: ${m.text()}`)});
    await page.addInitScript(()=>{localStorage.clear();localStorage.setItem('rd-suite-progress-v1',JSON.stringify({done:{abcde:true,dokumentation:true,medlernen:true,gefahren:true,psychiatrie:true,pruefung:true,wissensdatenbank:true},quizCorrect:9,quizTotal:10,examBest:90,docs:2}))});
    await page.goto(`http://127.0.0.1:${port}/`,{waitUntil:'networkidle',timeout:20000});
+   await assertCanonicalHome(page,'initial load');
    if(await page.locator('#mobileMenu').count())throw new Error('obsolete mobile menu button is still present');
    if((await page.locator('.nav-item[data-view="dashboard"] .nav-label').textContent())?.trim()!=='Startseite')throw new Error('Startseite label missing');
+   await page.locator('.rd-mainmenu-tile[data-main-route="suite:ausbildung"]').click();
    await page.locator('.suite-stat strong').first().waitFor({timeout:7000});
    if((await page.locator('.suite-stat strong').first().textContent())?.trim()!=='100%')throw new Error(`${BROWSER}: progress migration did not reach 100%`);
    if((await page.locator('.learn-module.done').count())!==7)throw new Error(`${BROWSER}: migration did not mark seven learning modules done`);
 
    // Canonical-home regression: both the sidebar Startseite and the RD INTRANET brand
-   // must lead to exactly the same learning-center home, never a legacy renderer.
+   // must lead to exactly the same main menu, never a legacy renderer.
    await page.evaluate(()=>{localStorage.removeItem('rd-suite-progress-v2');localStorage.removeItem('rd-suite-progress-v1')});
-   await page.reload({waitUntil:'networkidle'});
-   await assertCanonicalHome(page,'initial load');
+   await page.locator('.nav-item[data-view="dashboard"]').click();
+   await assertCanonicalHome(page,'sidebar Startseite');
    await nav(page,'abfrage');
    if(!(await page.locator('.view-title h1').filter({hasText:'Womit brauchst du Hilfe?'}).count()))throw new Error(`${BROWSER}: Abfragehilfe did not open`);
-   await nav(page,'dashboard');
-   await assertCanonicalHome(page,'sidebar Startseite');
-   const sidebarCounter=(await page.locator('.learn-stats .suite-stat strong').first().textContent()||'').trim();
-   await nav(page,'abfrage');
    await page.locator('.brand').click();
    await assertCanonicalHome(page,'RD INTRANET brand');
-   const brandCounter=(await page.locator('.learn-stats .suite-stat strong').first().textContent()||'').trim();
-   if(brandCounter!==sidebarCounter)throw new Error(`${BROWSER}: brand and sidebar Startseite show different learning counters (${brandCounter} vs ${sidebarCounter})`);
 
    await page.evaluate(()=>{localStorage.removeItem('rd-suite-progress-v2');localStorage.removeItem('rd-suite-progress-v1')});
    await page.reload({waitUntil:'networkidle'});
+   await assertCanonicalHome(page,'fresh reload');
 
    await nav(page,'abcde');
    for(let i=0;i<5;i++){await answerCorrect(page,'abcde-answer');await page.locator('[data-action="abcde-check"]').click();if(i<4)await page.locator('.suite-hero h1').filter({hasText:'ABCDE-Training'}).waitFor({timeout:5000})}
