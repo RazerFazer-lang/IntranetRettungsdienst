@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        browser: [chromium, firefox, webkit]
+        browser: [chromium, edge, firefox, webkit]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,7 +20,15 @@ jobs:
       - name: Install Playwright
         run: npm install --no-save playwright@1.55.0
       - name: Install browser
-        run: npx playwright install --with-deps ${{ matrix.browser }}
+        env:
+          BROWSER: ${{ matrix.browser }}
+        run: |
+          set -euo pipefail
+          if [ "$BROWSER" = "edge" ]; then
+            command -v microsoft-edge || command -v microsoft-edge-stable
+          else
+            npx playwright install --with-deps "$BROWSER"
+          fi
       - name: Run learning suite matrix test
         env:
           BROWSER: ${{ matrix.browser }}
