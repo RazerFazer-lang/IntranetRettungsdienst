@@ -19,6 +19,7 @@ const mime=file=>({'.html':'text/html; charset=utf-8','.js':'text/javascript; ch
 const server=http.createServer((req,res)=>{const u=(req.url||'/').split('?')[0];const rel=decodeURIComponent(u==='/'?'/index.html':u);const file=path.join(root,rel);if(!file.startsWith(root))return res.writeHead(403).end();fs.readFile(file,(err,data)=>{if(err)return res.writeHead(404).end('Not found');res.writeHead(200,{'Content-Type':mime(file),'Cache-Control':'no-store'});res.end(data)})});
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 const text=locator=>locator.textContent().then(v=>v||'');
+const parseDeInt=value=>Number(String(value).replace(/[.\s\u00a0\u202f]/g,'').replace(/,/g,''));
 async function launchBrowser(){
   if(BROWSER==='edge')return chromium.launch({headless:true,channel:'msedge'});
   const launcher=launchers[BROWSER];
@@ -31,11 +32,16 @@ async function verifyDiseaseView(page,label){
   await button.click();
   await page.locator('h1').filter({hasText:'Krankheitsbilder & Erkrankungen'}).waitFor({timeout:7000});
   const countText=await text(page.locator('.disease-plus-meta'));
-  const count=parseInt(countText.match(/(\d+) Treffer/)?.[1]||'0',10);
-  const total=parseInt(countText.match(/· (\d+) Einträge/)?.[1]||'0',10);
-  const catalog=parseInt(countText.match(/Katalogprüfung: (\d+)\//)?.[1]||'0',10);
-  if(total!==REQUIRED_TERMINAL_COUNT)throw new Error(`${label}: expected ${REQUIRED_TERMINAL_COUNT} disease entries, got ${total}`);
-  if(catalog!==REQUIRED_TERMINAL_COUNT)throw new Error(`${label}: catalogue check reports ${catalog}/${REQUIRED_TERMINAL_COUNT}`);
+  const catalogueLength=await page.evaluate(()=>Array.isArray(window.RD_ICD10GM_ALL)?window.RD_ICD10GM_ALL.length:0);
+  if(catalogueLength!==REQUIRED_TERMINAL_COUNT)throw new Error(`${label}: browser catalogue has ${catalogueLength} entries, expected ${REQUIRED_TERMINAL_COUNT}`);
+  const countMatch=countText.match(/([\d.\s\u00a0\u202f]+) Treffer/);
+  const totalMatch=countText.match(/·\s*([\d.\s\u00a0\u202f]+) Einträge/);
+  const catalogMatch=countText.match(/Katalogprüfung:\s*([\d.\s\u00a0\u202f]+)\//);
+  const count=countMatch?parseDeInt(countMatch[1]):0;
+  const total=totalMatch?parseDeInt(totalMatch[1]):0;
+  const catalog=catalogMatch?parseDeInt(catalogMatch[1]):0;
+  if(total!==REQUIRED_TERMINAL_COUNT)throw new Error(`${label}: UI reports ${total} entries, expected ${REQUIRED_TERMINAL_COUNT}; text=${countText}`);
+  if(catalog!==REQUIRED_TERMINAL_COUNT)throw new Error(`${label}: UI catalogue check reports ${catalog}/${REQUIRED_TERMINAL_COUNT}; text=${countText}`);
   if(count<1)throw new Error(`${label}: initial disease results empty`);
   const categories=await page.locator('#dxCategory option').allTextContents();
   if(!categories.includes('Kardiologie / Kreislauf'))throw new Error(`${label}: official category missing`);
@@ -70,7 +76,9 @@ async function verifyDiseaseView(page,label){
   await page.locator('.nav-item[data-view="krankheiten-plus"]').click();
   await page.locator('h1').filter({hasText:'Krankheitsbilder & Erkrankungen'}).waitFor({timeout:7000});
   const afterNav=await text(page.locator('.disease-plus-meta'));
-  if(!afterNav.includes(`${REQUIRED_TERMINAL_COUNT.toLocaleString('de-DE')} Einträge`))throw new Error(`${label}: catalogue missing after dashboard round-trip`);
+  const roundTripLength=await page.evaluate(()=>Array.isArray(window.RD_ICD10GM_ALL)?window.RD_ICD10GM_ALL.length:0);
+  if(roundTripLength!==REQUIRED_TERMINAL_COUNT)throw new Error(`${label}: catalogue missing after dashboard round-trip`);
+  if(!afterNav.includes('Einträge'))throw new Error(`${label}: disease metadata missing after dashboard round-trip`);
 }
 (async()=>{
   await new Promise(r=>server.listen(port,'127.0.0.1',r));
@@ -94,8 +102,9 @@ async function verifyDiseaseView(page,label){
         await context.setOffline(true);
         await page.reload({waitUntil:'networkidle',timeout:30000});
         await page.locator('h1').filter({hasText:'Krankheitsbilder & Erkrankungen'}).waitFor({timeout:7000});
+        const offlineLength=await page.evaluate(()=>Array.isArray(window.RD_ICD10GM_ALL)?window.RD_ICD10GM_ALL.length:0);
         const offlineText=await text(page.locator('.disease-plus-meta'));
-        if(!offlineText.includes(`${REQUIRED_TERMINAL_COUNT.toLocaleString('de-DE')} Einträge`))throw new Error(`${BROWSER} offline: full disease catalogue unavailable after offline reload`);
+        if(offlineLength!==REQUIRED_TERMINAL_COUNT||!offlineText.includes('Einträge'))throw new Error(`${BROWSER} offline: full disease catalogue unavailable after offline reload (${offlineLength} entries)`);
         await context.setOffline(false);
         offlineVerified=true;
       }
