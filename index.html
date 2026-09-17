@@ -13,6 +13,8 @@
   <link rel="apple-touch-icon" href="icon.svg">
   <title>Rettungsdienst Intranet</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="startup-ui.css">
+  <link rel="stylesheet" href="main-menu.css">
   <link rel="stylesheet" href="enhancements.css">
   <link rel="stylesheet" href="search-preview-v2.css">
   <link rel="stylesheet" href="search-layer-v6.css">
@@ -29,6 +31,26 @@
   <link rel="stylesheet" href="final-ui-overrides.css">
 </head>
 <body>
+  <div id="rdStartup" aria-hidden="false">
+    <div class="rd-startup-noise"></div>
+    <div class="rd-startup-grid"></div>
+    <section class="rd-startup-shell" role="status" aria-live="polite">
+      <div class="rd-startup-brand">
+        <div class="rd-startup-mark">✚</div>
+        <div><strong>RD INTRANET</strong><span>Digitale Einsatzhilfe</span></div>
+      </div>
+      <h1 class="rd-startup-title">System wird vorbereitet</h1>
+      <p class="rd-startup-copy">Oberfläche, Ausbildungsinhalte und Offline-Funktionen werden für diesen Start initialisiert.</p>
+      <div class="rd-startup-progress" aria-hidden="true"><span></span></div>
+      <div class="rd-startup-stages" aria-label="Initialisierungsstatus">
+        <div class="rd-startup-stage active">Grundsystem und Oberfläche</div>
+        <div class="rd-startup-stage">Datenmodule und Inhalte</div>
+        <div class="rd-startup-stage">Offline-Speicher prüfen</div>
+        <div class="rd-startup-stage">Bereit</div>
+      </div>
+      <div class="rd-startup-footer"><span>Lokaler Ausbildungs-/RP-Modus</span><strong>v1.17 UI</strong></div>
+    </section>
+  </div>
   <div class="app-shell">
     <aside class="sidebar" id="sidebar">
       <div class="brand" role="button" tabindex="0" aria-label="Zur Startseite" title="Zur Startseite"><div class="brand-mark">✚</div><div><strong>RD INTRANET</strong><span>Digitale Einsatzhilfe</span></div></div>
@@ -42,7 +64,7 @@
         <button class="nav-item" data-view="wissen"><span class="nav-icon">▤</span><span class="nav-label">Wissen</span></button>
       </nav>
       <div class="sidebar-card"><div class="status-dot"></div><div><strong>Offline bereit</strong><span>Nach dem ersten Laden lokal nutzbar</span></div></div>
-      <div class="sidebar-footer">Version 1.16 · Ausbildungs-/RP-Modus</div>
+      <div class="sidebar-footer">Version 1.17 · Ausbildungs-/RP-Modus</div>
     </aside>
     <main class="main">
       <header class="topbar">
@@ -86,5 +108,6 @@
     window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;installBtn.hidden=false;installBtn.onclick=async()=>{deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;installBtn.hidden=true;};});
     window.addEventListener('appinstalled',()=>{installBtn.hidden=true;});
   </script>
+  <script src="startup-ui.js"></script>
 </body>
 </html>
